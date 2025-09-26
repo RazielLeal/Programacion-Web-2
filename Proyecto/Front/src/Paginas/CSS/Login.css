@@ -1,0 +1,118 @@
+@font-face {
+  font-family: 'Cinzel';
+  src: url('./Images/Font/CinzelDecorative-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Cinzel';
+  src: url('./Images/Font/CinzelDecorative-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Cinzel';
+  src: url('./Images/Font/CinzelDecorative-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+
+.conteinerLogin {
+  margin: 0;
+  font-family: 'Cinzel';
+  min-height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+  background: url('./Images/Login_Wall.png') no-repeat center center fixed;
+  background-size: cover;
+  color: hsl(0, 0%, 20%);
+  overflow: hidden;
+}
+
+
+.conteinerLogin .navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ac8e6f;
+  padding: 15px 30px;
+  font-size: 1.8rem;
+  color: #1f222b;
+  position: fixed;
+  top: 0;
+  z-index: 10;
+}
+
+.conteinerLogin .logo {
+  font-size: 3rem;
+  font-weight: bold;
+
+}
+
+.conteinerLogin .crear-cuenta {
+  color: #1f222b;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.conteinerLogin .login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+  padding-top: 185px;
+}
+
+.conteinerLogin form {
+  display: flex;
+  flex-direction: column;
+}
+
+.conteinerLogin input {
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  padding: 14px 18px;
+  margin-bottom: 15px;
+  margin-top: 20px;
+  height: 60px;
+  width: 400px;
+  border: 3.5px solid #8d6833;
+  border-radius: 17px;
+  background-color: transparent;
+  color: #3a2a06; /* Color de texto más visible */
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+
+.conteinerLogin input::placeholder {
+  color: #8d6833;
+  opacity: 1; /* Asegura que el color se vea bien */
+}
+
+.conteinerLogin button {
+  padding: 10px;
+  font-family: "cinzel", bold;
+  font-size: 1.8rem;
+  background-color: #760108;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 140px;
+  width: 70%;
+  align-self: center;
+}
+
+.conteinerLogin button:hover {
+  background-color: #5e0007;
+}
+
+.conteinerLogin .mensaje {
+  margin-top: 10px;
+  color: #8b0000;
+  font-weight: bold;
+  text-align: center;
+}
