@@ -1,0 +1,115 @@
+@font-face {
+  font-family: 'Cinzel';
+  src: url('./Images/Font/CinzelDecorative-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Cinzel';
+  src: url('./Images/Font/CinzelDecorative-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Cinzel';
+  src: url('./Images/Font/CinzelDecorative-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+:root {
+    --fondo-home:#fdfaf0;
+    --title-color: hsl(0, 0%, 20%);
+    --letras-claras:#fdfaf0;
+    --fondo-claro: #c8a888;
+    --color-vinito:#7a3234;
+    --footer-vinito:#5f1a1f;
+
+    --colores-prueba:aqua;
+}
+
+/* Reseteo básico para eliminar el scroll de la página */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.main-home {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  
+  font-family: 'Cinzel', serif;
+  background-color: var(--fondo-home);
+  width: 100%;
+  height: 100vh;
+}
+
+.flex-home {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-grow: .8;
+  width: 95%;
+  overflow: hidden;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+.carousel-content-window {
+  flex-grow: 1; /* Ocupa el espacio entre las flechas */
+  height: 100%;
+  overflow: hidden; /* <-- LA CLAVE: oculta todo lo que se sale */
+}
+
+.carousel-track {
+  display: flex; /* Pone todos los items en una línea */
+  height: 100%;
+  
+  /* --- ¡LA ANIMACIÓN! --- */
+  /* Duración de 0.5s con un efecto suave */
+  transition: transform 0.5s ease-in-out; 
+}
+
+.carousel-track > .gallery-item-wrapper {
+  /* Si mostramos 3 items, cada uno ocupa 1/3 del ancho de la ventana */
+  width: calc(100% / 3);
+  
+  /* Evita que se encojan */
+  flex-shrink: 0;
+  
+  /* Simula un "gap" entre items */
+  box-sizing: border-box;
+  padding: 0 15px;
+}
+
+
+.carousel-arrow {
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+  transition: background-color 0.2s;
+  
+  /* Evita que las flechas se achiquen */
+  flex-shrink: 0; 
+}
+
+.carousel-arrow:hover {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.left-arrow { 
+  margin-left: 15px; /* Pequeño margen */
+}
+.right-arrow { 
+  margin-right: 15px; /* Pequeño margen */
+}

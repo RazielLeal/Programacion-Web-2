@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import "./NavbarPerfil.css";
 import { useNavigate } from "react-router-dom";
 
@@ -8,13 +8,18 @@ import Home from "./Imagenes/Home.png";
 export function NavbarPerfil() {
   const navigate = useNavigate();
 
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
   const goHome = () => {
-    navigate("/home");
+    navigate("/Home");
   };
 
+  const toggleSearch = () =>{
+    setIsSearchOpen(!isSearchOpen);
+  }
   return (
     <header className="navbar-perfil">
-      {/* Logo tipo AC */}
+      
       <div className="navbar-left" onClick={goHome}>
         <h1 className="logo">AC</h1>
       </div>
@@ -22,11 +27,21 @@ export function NavbarPerfil() {
 
       {/* Icono derecha */}
       <div className="navbar-right">
-        <button className="icon-btn">
-            <img src={Busq} alt="Buscar" onClick={goHome} className="icon-img" />
-        </button>
-        <button className="icon-btn">
-            <img src={Home} alt="Home" onClick={goHome} className="icon-img" />
+
+        <div className="search-container">
+          <button className="icon-btn" onClick={toggleSearch}>
+              <img src={Busq} alt="Buscar" className="icon-img" />
+          </button>
+
+          <input 
+            type="text"
+            placeholder="Buscar..."
+            className={isSearchOpen ? "search-input active" : "search-input"}
+          />
+        </div>
+
+        <button className="icon-btn" onClick={goHome}>
+            <img src={Home} alt="Home" className="icon-img" />
         </button>
 
         <div className="user-stamp">
