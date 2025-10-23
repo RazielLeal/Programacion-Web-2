@@ -1,0 +1,98 @@
+.guardados-container {
+  background-color: #581818;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 80px;
+  font-family: "Cinzel", serif;
+  color: #fff;
+}
+
+.guardados-container .guardados-header {
+  margin-bottom: 40px;
+}
+
+.guardados-container .titulo-guardados {
+  font-size: 2rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #f5e3b3;
+  border-bottom: 2px solid #a56726;
+  padding-bottom: 10px;
+}
+
+.guardados-container .mensaje-vacio {
+  font-size: 1.2rem;
+  color: #e3c8b3;
+  margin-top: 60px;
+}
+
+.guardados-container .galeria-guardados {
+   display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+  margin-top: 40px;
+  width: 90%;
+}
+
+.guardados-container .card-obra {
+ background-image: url('./Images/Perfil/Marco.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  background-origin: padding-box;
+  background-clip: padding-box;
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1.2 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.guardados-container .card-obra:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 10px rgba(255, 215, 130, 0.4);
+}
+
+.guardados-container .img-obra {
+  width: 98%;
+  height: 97%;
+  object-fit: cover;
+  display: block;
+  margin: 0;
+}
+
+.guardados-container .overlay {
+  position: absolute;
+  bottom: 0;
+  background: rgba(20, 10, 5, 0.7);
+  width: 100%;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.guardados-container .titulo-obra {
+  color: #f5e3b3;
+  font-size: 1rem;
+  letter-spacing: 1px;
+}
+
+.guardados-container .cerrar-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  font-size: 40px;
+  cursor: pointer;
+  color: #fbfbfb;
+}
+
+.guardados-container .cerrar-btn:hover {
+  color: red;
+}
