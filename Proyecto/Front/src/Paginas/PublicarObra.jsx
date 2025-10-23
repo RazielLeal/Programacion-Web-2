@@ -78,3 +78,4 @@ export function PublicarObra() {
     </div>
   );
 }
+export default PublicarObra;

@@ -40,3 +40,5 @@ export function Guardados() {
     </div>
   );
 }
+
+export default Guardados;
