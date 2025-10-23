@@ -122,36 +122,34 @@
   }
 }
 
-/* ---------- Search Bar (Estilos nuevos) ---------- */
+/* ---------- Search Bar y Modal (Estilos nuevos) ---------- */
 .navbar-perfil .search-container {
   display: flex;
   align-items: center;
+  /* Clave para posicionar el modal correctamente */
+  position: relative;
 }
 
+/* --- 1. Estilos del Input (la barra) --- */
 .navbar-perfil .search-input {
-  /* Estilo Oculto */
   width: 0;
   opacity: 0;
   padding: 6px 0;
   border: none;
   border-radius: 15px;
-  margin-left: -10px; /* Para que aparezca "desde" el icono */
+  margin-left: -10px;
   font-family: 'Cinzel', sans-serif;
   font-size: 14px;
-  
-  /* Transición */
   transition: all 0.4s ease-in-out;
   visibility: hidden;
 }
 
 .navbar-perfil .search-input.active {
-  /* Estilo Visible */
-  width: 200px; /* Ancho que tendrá al abrirse */
+  width: 200px;
   opacity: 1;
   padding: 6px 15px;
   margin-left: 5px;
-  /* Puedes usar tus variables de color aquí */
-  border: 1px solid var(--footer-vinito, #5f1a1f); 
+  border: 1px solid var(--footer-vinito, #5f1a1f);
   background-color: var(--letras-claras, #fdfaf0);
   visibility: visible;
 }
@@ -159,4 +157,140 @@
 .navbar-perfil .search-input:focus {
   outline: none;
   box-shadow: 0 0 5px rgba(95, 26, 31, 0.5);
+}
+
+/* --- 2. Estilos del Modal (caja con botones) --- */
+.navbar-perfil .search-modal {
+  /* Estilo Oculto */
+  opacity: 0;
+  transform: translateY(10px) scale(0.95);
+  visibility: hidden;
+  transition: all 0.2s ease-out;
+
+  /* Posicionamiento (debajo del contenedor de búsqueda) */
+  position: absolute;
+  top: 100%; /* Justo debajo del navbar */
+  /* Se alinea a la derecha del input (200px) + el icono (50px) */
+  right: 0; 
+  margin-top: 10px;
+
+  /* Estilo del modal */
+  background-color: var(--letras-claras, #fdfaf0);
+  border: 1px solid var(--footer-vinito, #5f1a1f);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1100;
+  width: 150px;
+}
+
+.navbar-perfil .search-modal.active {
+  /* Estilo Visible */
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  visibility: visible;
+}
+
+/* Estilo de los botones dentro del modal */
+.navbar-perfil .modal-btn {
+  font-family: 'Cinzel', sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--color-vinito, #7a3234);
+  background-color: transparent;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.navbar-perfil .modal-btn:hover {
+  background-color: rgba(95, 26, 31, 0.1);
+}
+
+.navbar-perfil .modal-btn.active-filter {
+  background-color: var(--color-vinito, #7a3234);
+  color: var(--letras-claras, #fdfaf0);
+}
+
+/* --- Estilos del Modal de Perfil --- */
+
+/* 1. Contenedor para posicionar el modal */
+.navbar-perfil .profile-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* 2. El modal (oculto por defecto) */
+.navbar-perfil .profile-modal {
+  /* Estilo Oculto */
+  opacity: 0;
+  transform: translateY(10px) scale(0.95);
+  visibility: hidden;
+  transition: all 0.2s ease-out;
+
+  /* Posicionamiento */
+  position: absolute;
+  top: 100%; /* Debajo del navbar */
+  right: 0; /* Alineado a la derecha */
+  margin-top: 10px;
+
+  /* Estilo de la caja */
+  background-color: var(--letras-claras, #fdfaf0);
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  width: 200px; /* Ancho del modal */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1100;
+}
+
+/* 3. Estado Activo (visible) */
+.navbar-perfil .profile-modal.active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  visibility: visible;
+}
+
+/* 4. Botones dentro del modal */
+.navbar-perfil .profile-modal-btn {
+  font-family: 'Cinzel', sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--title-color, #2b2b2b);
+  background-color: transparent;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.navbar-perfil .profile-modal-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* 5. Separador */
+.navbar-perfil .modal-divider {
+  height: 1px;
+  background-color: #eee;
+  margin: 5px 0;
+}
+
+/* 6. Botón de Cerrar Sesión (color especial) */
+.navbar-perfil .profile-modal-btn.logout {
+  color: var(--color-vinito, #7a3234);
+}
+
+.navbar-perfil .profile-modal-btn.logout:hover {
+  background-color: rgba(95, 26, 31, 0.1);
 }
