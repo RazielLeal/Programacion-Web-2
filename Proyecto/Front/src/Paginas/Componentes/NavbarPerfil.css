@@ -121,3 +121,42 @@
     font-size: 28px;
   }
 }
+
+/* ---------- Search Bar (Estilos nuevos) ---------- */
+.navbar-perfil .search-container {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-perfil .search-input {
+  /* Estilo Oculto */
+  width: 0;
+  opacity: 0;
+  padding: 6px 0;
+  border: none;
+  border-radius: 15px;
+  margin-left: -10px; /* Para que aparezca "desde" el icono */
+  font-family: 'Cinzel', sans-serif;
+  font-size: 14px;
+  
+  /* Transición */
+  transition: all 0.4s ease-in-out;
+  visibility: hidden;
+}
+
+.navbar-perfil .search-input.active {
+  /* Estilo Visible */
+  width: 200px; /* Ancho que tendrá al abrirse */
+  opacity: 1;
+  padding: 6px 15px;
+  margin-left: 5px;
+  /* Puedes usar tus variables de color aquí */
+  border: 1px solid var(--footer-vinito, #5f1a1f); 
+  background-color: var(--letras-claras, #fdfaf0);
+  visibility: visible;
+}
+
+.navbar-perfil .search-input:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(95, 26, 31, 0.5);
+}

@@ -40,12 +40,3 @@ export function Navbar() {
   );
 }
 
-export function Footer() {
-  return (
-    <footer className="footer-custom">
-      <p>
-        Creado por <b>Angeles</b>
-      </p>
-    </footer>
-  );
-}
