@@ -5,12 +5,12 @@ import "./CSS/Landing.css";
 
 
 
-function Home() {
+function Landing() {
   // const nameUser = localStorage.getItem("user");
 
   const navigate = useNavigate();
   
-  const Loginredhome = () => {    
+  const LoginredLanding = () => {    
     navigate("/login");
   };
 
@@ -20,7 +20,7 @@ function Home() {
       <main className="main-home">
         <div className="centered-container">
           <div className="title-home">ARTCONNECT</div>
-          <button onClick={Loginredhome} className="login-red-home" >COMIENZA TU EXPERIENCIA</button>
+          <button onClick={LoginredLanding} className="login-red-home" >COMIENZA TU EXPERIENCIA</button>
         </div>
 
         <div className="mujer-izq"></div>
@@ -36,4 +36,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Landing;
