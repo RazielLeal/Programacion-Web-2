@@ -1,0 +1,254 @@
+/* Fondo oscuro del modal */
+:root {
+    --fondo-home:#fdfaf0;
+    --title-color: hsl(0, 0%, 20%);
+    --letras-claras:#fdfaf0;
+    --fondo-claro: #c8a888;
+    --color-vinito:#7a3234;
+    --footer-vinito:#5f1a1f;
+    --color-tacha:#9c601d;
+    --fondo-img: #00000025;
+    --fondo-modal-info:#d1b266;
+    --colores-prueba:aqua;
+}
+
+.main-home .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+  
+  /* --- CAMBIA ESTA LÍNEA --- */
+    background-color: rgba(0, 0, 0, 0.7);  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+/* Contenedor principal (caja blanca) */
+.main-home .modal-content {
+  display: flex;
+  flex-direction: row; /* Pone los hijos uno al lado del otro */
+  
+  width: 80%;
+  max-width: 100%;
+  height: 80vh; /* Alto del modal */
+    
+  padding: 20px;
+  padding-top: 50px; /* Espacio para el botón de cerrar */
+  position: relative;
+  gap: 20px; /* Espacio entre el arte y la info */
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 8rem; 
+    filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.89));
+    color: var(--color-tacha);
+    cursor: pointer;
+    z-index: 10;
+    
+    /* (Opcional) Ajusta el line-height para centrarlo mejor */
+    line-height: 1;
+}
+
+.modal-close-btn:hover {
+  color: #000;
+}
+
+
+/* 1. Contenedor del Arte (Izquierda) */
+.modal-art-container {
+  flex: 3; /* Ocupa 3/4 del espacio (puedes ajustar esto) */
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--fondo-img); /* Color de fondo sutil */
+  overflow: hidden;
+  border-radius: 20px;
+  
+  /* Flexbox (el padre) hará que esto tenga 100% de alto */
+}
+
+/* La imagen de arte */
+.modal-artwork-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Para que la imagen se vea completa */
+}
+
+/* Flechas de navegación del carrusel */
+.modal-nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0);
+  color: white;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 10px 15px;
+  z-index: 5;
+  transition: background-color 0.2s;
+}
+.modal-nav-arrow:hover {
+  background-color: rgba(255, 255, 255, 0.24);
+}
+.modal-nav-arrow.left { 
+  left: 10px; 
+  border-radius: 4px 0 0 4px;
+}
+.modal-nav-arrow.right { 
+  right: 10px; 
+  border-radius: 0 4px 4px 0;
+}
+
+
+/* 2. Contenedor de la Info (Derecha) */
+.main-home .modal-info-container {
+  flex: 1;
+  background-color: var(--fondo-modal-info);
+  border-radius: 15px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden; 
+  min-height: 0;
+}
+
+/* Estilo para todas las partes (opcional) */
+.main-home .modal-info-container .info-part {
+  width: 100%;
+  flex-shrink: 1; 
+}
+
+/* --- PREFIJO .modal-info-container AÑADIDO A TODO --- */
+
+.main-home .modal-info-container .artist-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.main-home .modal-info-container .artist-avatar-small {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.main-home .modal-info-container .artist-name-small {
+  font-family: 'Cinzel', serif;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+/* --- PARTE 2: Título --- */
+.main-home .modal-info-container .artwork-title-container {
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.main-home .modal-info-container .artwork-title-modal {
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+/* --- PARTE 3: Acciones --- */
+.main-home .modal-info-container .artwork-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.main-home .modal-info-container .like-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.main-home .modal-info-container .like-count {
+  font-size: 1.1rem;
+  font-family: 'Cinzel', serif;
+}
+
+/* --- PARTE 4: Lista de Comentarios --- */
+.main-home .modal-info-container .comments-list {
+  flex-grow: 1; /* <-- Ahora SÍ funcionará */
+  overflow-y: auto; /* <-- Ahora SÍ funcionará */
+  min-height: 0; 
+  background-color: rgba(0,0,0,0.03);
+  border-radius: 8px;
+  padding: 10px;
+}
+.main-home .modal-info-container .comment-item {
+  font-family: Arial, sans-serif;
+  font-size: 0.9rem;
+  margin: 0 0 8px 0;
+}
+.main-home .modal-info-container .comment-item.none {
+  font-style: italic;
+  color: #777;
+}
+
+/* --- PARTE 5: Input de Comentario --- */
+.main-home .modal-info-container .comment-input-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.main-home .modal-info-container .comment-input {
+  flex-grow: 1;
+  border: 1px solid #ccc;
+  border-radius: 15px;
+  padding: 10px 14px;
+  font-family: Arial, sans-serif;
+}
+.main-home .modal-info-container .comment-input:focus {
+  outline: 1px solid var(--color-vinito, #7a3234);
+}
+
+/* --- Estilo para los BOTONES con Imágenes --- */
+.main-home .modal-info-container .action-btn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0; 
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* CSS para la IMAGEN DENTRO del botón */
+.main-home .modal-info-container .action-btn img {
+  width: 100%; 
+  height: 100%;
+  object-fit: contain; 
+  transition: transform 0.2s;
+}
+
+.main-home .modal-info-container .action-btn:hover img {
+  transform: scale(1.1);
+}
+.main-home .modal-info-container .action-btn:hover span { 
+  transform: scale(1.1);
+}

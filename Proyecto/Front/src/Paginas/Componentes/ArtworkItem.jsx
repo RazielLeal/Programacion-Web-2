@@ -5,15 +5,15 @@ import './ArtworkItem.css';
 // Importa el pedestal (es estático, así que lo importamos aquí)
 import pedestalImg from '../CSS/Images/pedestal.png';
 
-export function ArtworkItem({ artworkImage, artistImage, artistName }) {
+export function ArtworkItem({ artworkImage, artistImage, artistName, onArtworkClick }) {
   return (
     <div className="gallery-item-wrapper">
       
       {/* 1. La obra de arte */}
-      <div className="artwork-frame">
+        <div className="artwork-frame" onClick={onArtworkClick}> 
         <img src={artworkImage} alt={`Obra de ${artistName}`} />
-      </div>
-      
+        </div>      
+        
       {/* 2. La info del artista */}
       <div className="artist-info">
         <img src={artistImage} alt={artistName} className="artist-avatar" />
