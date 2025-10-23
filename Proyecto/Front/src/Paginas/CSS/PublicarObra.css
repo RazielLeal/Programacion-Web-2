@@ -1,0 +1,160 @@
+.publicar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #581818;
+  height: 100vh;
+  color: #fff;
+  font-family: "Cinzel", serif;
+  gap: 3rem;
+  position: relative;
+}
+
+.publicar-container .marco {
+  position: relative;
+  background-color: #c4a27b;
+  border: 15px solid #8a4f1d;
+  width: 480px;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+.publicar-container .texto-seleccion {
+  font-size: 1rem;
+  color: #2b1b14;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.publicar-container .imagen-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.publicar-container .input-imagen {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.publicar-container .flecha {
+  position: absolute;
+  top: 50%;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+  transform: translateY(-50%);
+}
+
+.publicar-container .flecha.izquierda {
+  left: -35px;
+}
+
+.publicar-container .flecha.derecha {
+  right: -35px;
+}
+
+.publicar-container .cerrar {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 2rem;
+  color: #222;
+  cursor: pointer;
+}
+
+.publicar-container .info-obra {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: -40px;
+}
+
+.publicar-container .titulo {
+  font-size: 1.3rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.publicar-container .placa {
+    background-image: url('./Images/PublicarObra/Placa.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain; /* o use `cover` para rellenar sin mantener todo el contenido visible */
+    width: 430px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.publicar-container .input-titulo {
+  background: transparent;
+  border: none;
+  color: #000;
+  width: 90%;
+  text-align: center;
+  font-family: "Cinzel", serif;
+  font-size: 1rem;
+}
+
+.publicar-container .input-titulo:focus {
+  outline: none;
+}
+
+.publicar-container .icono-subir img{
+  width: 40px;
+  height: 40px;
+  display: block;
+  cursor: pointer;
+  position: absolute;
+  bottom: 28%;
+}
+
+.publicar-container .botones {
+  position: absolute;
+  bottom: 40px;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.publicar-container .btn-cancelar,
+.publicar-container .btn-publicar {
+  padding: 0.8rem 1.8rem;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: "Cinzel", serif;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+  margin-left: 350px;
+  margin-right: 350px;
+  margin-bottom: 80px;
+}
+
+.publicar-container .btn-cancelar {
+  background-color: #0a0a0f;
+  color: #fff;
+}
+
+.publicar-container .btn-publicar {
+  background-color: #a56726;
+  color: #fff;
+}
+
+.publicar-container .btn-cancelar:hover {
+  background-color: #1b1b27;
+}
+
+.publicar-container .btn-publicar:hover {
+  background-color: #b97b2e;
+}
