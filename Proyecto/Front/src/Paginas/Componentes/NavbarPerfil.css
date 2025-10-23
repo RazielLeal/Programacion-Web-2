@@ -1,0 +1,123 @@
+@font-face {
+  font-family: 'Cinzel';
+  src: url('./Imagenes/Font/CinzelDecorative-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Cinzel';
+  src: url('./Imagenes/Font/CinzelDecorative-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Cinzel';
+  src: url('./Imagenes/Font/CinzelDecorative-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+.navbar-perfil {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 70px;
+  background-color: #ac8e6f; /* tono beige marrón */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 35px;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  font-family: 'Cinzel';
+}
+
+/* ---------- Lado izquierdo ---------- */
+.navbar-perfil .navbar-left .logo {
+  font-size: 34px;
+  font-weight: bold;
+  color: #2b2b2b;
+  cursor: pointer;
+  margin: 0;
+}
+
+
+/* ---------- Lado derecho ---------- */
+.navbar-perfil .navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.navbar-perfil .icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, color 0.3s;
+}
+
+.navbar-perfil .icon-btn:hover {
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.navbar-perfil .icon-img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  transition: transform 0.2s, filter 0.3s;
+}
+
+.navbar-perfil .icon-btn:hover .icon-img {
+  transform: scale(1.1);
+  filter: brightness(1.5);
+}
+
+.navbar-perfil .user-stamp {
+  width: 100px;
+  height: 50px;
+  background: url('./Imagenes/Ticket.png') no-repeat center center;
+  background-size: cover;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.navbar-perfil .user-stamp:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-perfil .user-stamp img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 600px) {
+  .navbar-center {
+    gap: 15px;
+  }
+
+  .icon-btn {
+    font-size: 18px;
+  }
+
+  .user-stamp {
+    width: 60px;
+    height: 50px;
+    
+  }
+
+  .navbar-left .logo {
+    font-size: 28px;
+  }
+}
