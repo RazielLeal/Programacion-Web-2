@@ -9,7 +9,7 @@ export function NavbarPerfil() {
   const navigate = useNavigate();
 
   const goHome = () => {
-    navigate("/home");
+    navigate("/Home");
   };
 
   return (

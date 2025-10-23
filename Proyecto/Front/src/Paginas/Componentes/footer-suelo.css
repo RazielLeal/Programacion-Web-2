@@ -1,0 +1,27 @@
+:root {
+    --title-color: hsl(0, 0%, 20%);
+    --letras-claras:#fdfaf0;
+    --fondo-claro: #c8a888;
+    --color-vinito:#7a3234;
+    --footer-vinito:#5f1a1f;
+
+    --colores-prueba:aqua;
+}
+
+.footer-suelo {
+    position: fixed;
+    background-color: var(--footer-vinito);
+    height: 30vh;
+    
+    /* --- AÑADE ESTAS LÍNEAS --- */
+    bottom: 0;  /* Pégalo abajo */
+    left: 0;   /* Pégalo a la izquierda */
+    right: 0;  /* Pégalo a la derecha */
+    /* Opcionalmente, puedes usar width: 100%; en lugar de left y right */
+
+    /* --- QUITA ESTA LÍNEA (no funciona aquí) --- */
+    /* align-self: end; */
+    
+    /* --- CAMBIA ESTA LÍNEA --- */
+    width: 100%; /* O quita left y right */
+}

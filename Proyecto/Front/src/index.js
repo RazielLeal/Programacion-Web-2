@@ -5,7 +5,6 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 //import Ejemplo from './Ejemplo';
 import 'bootstrap/dist/css/bootstrap.css';
-import Register from './Paginas/Register';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

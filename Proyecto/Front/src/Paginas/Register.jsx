@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import "./CSS/Register.css"; // Usa el estilo que subiste
 import { Navbar } from "./Componentes/NavbarFotter";
-import { Navigate } from "react-router-dom";
+
 
 export default function Register() {
   const [nombre, setNombre] = useState("");
