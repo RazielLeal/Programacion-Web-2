@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react"; // 1. IMPORTA useEffect y useRef
 import "./NavbarPerfil.css";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import Busq from "./Imagenes/Busq.png";
 import Home from "./Imagenes/Home.png";
@@ -12,6 +12,8 @@ export function NavbarPerfil() {
   const [activeFilter, setActiveFilter] = useState(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
+  const location = useLocation();
+
   // 2. CREA LOS REFS
   const searchRef = useRef(null);
   const profileRef = useRef(null);
@@ -20,9 +22,32 @@ export function NavbarPerfil() {
     navigate("/Home");
   };
 
+  const goProfile = () => {
+    navigate("/PerfilUsuario");
+  }
+
+   const goPublish = () => {
+    navigate("/PublicarObra");
+  }
+
+  const goLogin = () => {
+    navigate("/Login");
+  }
+
+
+
   const toggleSearch = () => {
-    setIsSearchOpen(!isSearchOpen);
-    setIsProfileOpen(false);
+    // setIsSearchOpen(!isSearchOpen);
+    // setIsProfileOpen(false);
+
+    if (location.pathname !== "/Home") {
+      // Si está en cualquier otra página, redirige a /Home
+      navigate("/Home");
+    } else {
+      // Si YA está en /Home, solo abre/cierra la búsqueda
+      setIsSearchOpen(!isSearchOpen);
+      setIsProfileOpen(false);
+    }
   };
 
   const handleFilterClick = (filterType) => {
@@ -62,7 +87,7 @@ export function NavbarPerfil() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []); // El array vacío [] significa que esto solo se ejecuta al montar y desmontar
-
+   
   return (
     <header className="navbar-perfil">
       <div className="navbar-left" onClick={goHome}>
@@ -75,7 +100,7 @@ export function NavbarPerfil() {
           <button className="icon-btn" onClick={toggleSearch}>
             <img src={Busq} alt="Buscar" className="icon-img" />
           </button>
-          
+
           <input
             type="text"
             placeholder="Buscar..."
@@ -112,11 +137,10 @@ export function NavbarPerfil() {
           </div>
 
           <div className={isProfileOpen ? "profile-modal active" : "profile-modal"}>
-            <button className="profile-modal-btn">Ver Perfil</button>
-            <button className="profile-modal-btn">Editar Perfil</button>
-            <button className="profile-modal-btn">Publicar obra</button>
+            <button className="profile-modal-btn" onClick={goProfile}>Ver Perfil</button>
+            <button className="profile-modal-btn" onClick={goPublish}>Publicar obra</button>
             <div className="modal-divider"></div>
-            <button className="profile-modal-btn logout">Cerrar Sesión</button>
+            <button className="profile-modal-btn logout" onClick={goLogin}>Cerrar Sesión</button>
           </div>
         </div>
         

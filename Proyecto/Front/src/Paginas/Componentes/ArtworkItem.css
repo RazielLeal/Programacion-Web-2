@@ -27,6 +27,7 @@
   align-items: center;
   position: relative;
   margin-top: 8vh; /* Espacio entre el cuadro y el pedestal */
+  cursor: pointer;
 }
 .artist-avatar {
   width: 90px;
