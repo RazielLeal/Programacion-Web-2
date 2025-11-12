@@ -93,9 +93,11 @@ app.post("/login", (req, resp) => {
 
             if (result.length > 0) {
                 const nombre = result[0].Nombre;
+                const userID = result[0].id; 
                 return resp.json({
                     msg: "SI",
-                    user: nombre
+                    user: nombre, 
+                    id: userID
                 });
             } else {
                 return resp.json({
@@ -105,6 +107,58 @@ app.post("/login", (req, resp) => {
         }
     );
 });
+
+//Endpoint para obtener la info del usuario que inicio sesion por medio del id 
+app.get("/user/:id", 
+    (req, resp) => {
+        db.query("SELECT Nombre, Correo, Imagen FROM usuario WHERE id = ?", 
+        req.params.id,
+        (er, result) => { //Muestra la info del usuario que inicio sesion
+        if (er) {
+            resp.json({
+            msg: "Err BD"
+            })
+            console.log(er); //Mostrar qué error hubo
+        } else if (result.length > 0) {
+            resp.json(result[0]);
+            // console.log(result);
+        } else {
+            resp.json({
+            msg: "No result"
+            })
+        }
+        })
+    }
+)
+
+//Endpoint para registrar obras 
+app.post(
+    "/register", 
+    Archivo.single("file"),
+    (req, resp) => {
+        const {name, mail, pass} = req.body;
+        const imagen = req.file.buffer.toString("base64");
+
+        db.query(
+            "INSERT INTO usuario(Nombre, Correo, Contra, Imagen) VALUES(?,?,?,?)", 
+            [name, mail, pass, imagen], 
+            (err, result) => {
+                if (err) {
+                    resp.json({
+                        msg: "ErrorDB"
+                    })
+                    console.log(err);
+                } else {
+                    resp.json({
+                        msg: "Registrado"
+                    })
+                    console.log(result);
+                }
+            }
+        )
+
+    }
+)
 
 
 

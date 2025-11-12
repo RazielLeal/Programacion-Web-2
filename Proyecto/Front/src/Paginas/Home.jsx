@@ -99,6 +99,9 @@ import obra2 from './CSS/Images/images-home/cuadro4.png';
 import obra3 from './CSS/Images/images-home/mujer2.png';
 import avatarGenerico from './CSS/Images/serpiente.jpeg';
 
+import axios from "axios"; 
+import { useEffect } from "react"; 
+
 // ... (al inicio de Home.jsx)
 const allArtworks = [
   { id: 1, artworkUrl: obra1, title: 'La Noche Estrellada', artistName: 'Van Gogh', artistAvatar: avatarGenerico, likes: '123.5M', comments: [{user: 'Usuario1', text: 'Comentario 1'}, {user: 'Usuario2', text: 'Comentario 2'}, {user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 1000'}] },
@@ -132,6 +135,8 @@ function Home() {
   const closeModal = () => {
     setSelectedArtwork(null);
   };
+
+  const userID = localStorage.getItem("userID");  
 
   return (
     <main className="main-home">

@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from "react"; // 1. IMPORTA useEffect y useRef
 import "./NavbarPerfil.css";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import Busq from "./Imagenes/Busq.png";
 import Home from "./Imagenes/Home.png";
+import axios from "axios"; 
 
 export function NavbarPerfil() {
   const navigate = useNavigate();
@@ -35,7 +37,10 @@ export function NavbarPerfil() {
   }
 
 
-
+  //datos del usuario que inicio sesion
+  const [userInfo, setUserInfo] = useState([]); 
+  const userID = localStorage.getItem("userID");  
+ 
   const toggleSearch = () => {
     // setIsSearchOpen(!isSearchOpen);
     // setIsProfileOpen(false);
@@ -87,66 +92,88 @@ export function NavbarPerfil() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []); // El array vacío [] significa que esto solo se ejecuta al montar y desmontar
-   
-  return (
-    <header className="navbar-perfil">
-      <div className="navbar-left" onClick={goHome}>
-        <h1 className="logo">AC</h1>
-      </div>
+  
+    const getUser = async()=> {
+    try{
+      const resp = await axios.get(`http://localhost:3001/user/${userID}`);
+        if(resp.data.msg === "Err BD"){
+          alert("Error con base de datos"); 
+        } else if (resp.data.msg === "No result"){
+          alert("Error al obtener la info del usuario"); 
+        } else {
+          setUserInfo(resp.data); 
+          console.log(resp.data);  
+        }
+    } catch (error){
+      alert("Error al hacer la peticion"); 
+    }
+  }
+   useEffect(()=>{
+     getUser(); 
+   }, [userID]);
 
-      <div className="navbar-right">
-        {/* 4. ASIGNA EL REF al contenedor de búsqueda */}
-        <div className="search-container" ref={searchRef}>
-          <button className="icon-btn" onClick={toggleSearch}>
-            <img src={Busq} alt="Buscar" className="icon-img" />
+  if(userInfo){
+    return (
+      <header className="navbar-perfil">
+        <div className="navbar-left" onClick={goHome}>
+          <h1 className="logo">AC</h1>
+        </div>
+
+        <div className="navbar-right">
+          {/* 4. ASIGNA EL REF al contenedor de búsqueda */}
+          <div className="search-container" ref={searchRef}>
+            <button className="icon-btn" onClick={toggleSearch}>
+              <img src={Busq} alt="Buscar" className="icon-img" />
+            </button>
+
+            <input
+              type="text"
+              placeholder="Buscar..."
+              className={isSearchOpen ? "search-input active" : "search-input"}
+            />
+            <div className={isSearchOpen ? "search-modal active" : "search-modal"}>
+              <button
+                className={`modal-btn ${activeFilter === 'artistas' ? 'active-filter' : ''}`}
+                onClick={() => handleFilterClick('artistas')}
+              >
+                Artistas
+              </button>
+              <button
+                className={`modal-btn ${activeFilter === 'obras' ? 'active-filter' : ''}`}
+                onClick={() => handleFilterClick('obras')}
+              >
+                Obras
+              </button>
+            </div>
+          </div>
+
+          {/* Botón de Home */}
+          <button className="icon-btn" onClick={goHome}>
+            <img src={Home} alt="Home" className="icon-img" />
           </button>
 
-          <input
-            type="text"
-            placeholder="Buscar..."
-            className={isSearchOpen ? "search-input active" : "search-input"}
-          />
-          <div className={isSearchOpen ? "search-modal active" : "search-modal"}>
-            <button
-              className={`modal-btn ${activeFilter === 'artistas' ? 'active-filter' : ''}`}
-              onClick={() => handleFilterClick('artistas')}
-            >
-              Artistas
-            </button>
-            <button
-              className={`modal-btn ${activeFilter === 'obras' ? 'active-filter' : ''}`}
-              onClick={() => handleFilterClick('obras')}
-            >
-              Obras
-            </button>
+          {/* 4. ASIGNA EL REF al contenedor de perfil */}
+          <div className="profile-container" ref={profileRef}>
+            <div className="user-stamp" onClick={toggleProfile}>
+              <img
+                src={"data:image/png;base64," + userInfo.Imagen}
+                alt="Usuario"
+              />
+            </div>
+
+            <div className={isProfileOpen ? "profile-modal active" : "profile-modal"}>
+              <button className="profile-modal-btn" onClick={goProfile}>Ver Perfil</button>
+              <button className="profile-modal-btn" onClick={goPublish}>Publicar obra</button>
+              <div className="modal-divider"></div>
+              <button className="profile-modal-btn logout" onClick={goLogin}>Cerrar Sesión</button>
+            </div>
           </div>
+          
         </div>
+      </header>
+    );
+  }
 
-        {/* Botón de Home */}
-        <button className="icon-btn" onClick={goHome}>
-          <img src={Home} alt="Home" className="icon-img" />
-        </button>
-
-        {/* 4. ASIGNA EL REF al contenedor de perfil */}
-        <div className="profile-container" ref={profileRef}>
-          <div className="user-stamp" onClick={toggleProfile}>
-            <img
-              src="https://static.wixstatic.com/media/4236a4_aa83eff30f804e98bf49d1092fdec04c~mv2.jpg/v1/fill/w_280,h_392,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Frida%20Kahlo.jpg"
-              alt="Usuario"
-            />
-          </div>
-
-          <div className={isProfileOpen ? "profile-modal active" : "profile-modal"}>
-            <button className="profile-modal-btn" onClick={goProfile}>Ver Perfil</button>
-            <button className="profile-modal-btn" onClick={goPublish}>Publicar obra</button>
-            <div className="modal-divider"></div>
-            <button className="profile-modal-btn logout" onClick={goLogin}>Cerrar Sesión</button>
-          </div>
-        </div>
-        
-      </div>
-    </header>
-  );
 }
 
 export default NavbarPerfil;
