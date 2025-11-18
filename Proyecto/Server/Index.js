@@ -138,17 +138,16 @@ app.post("/login", (req, resp) => {
 //Endpoint para obtener la info del usuario que inicio sesion por medio del id 
 app.get("/user/:id", 
     (req, resp) => {
-        db.query("SELECT Nombre, Correo, Imagen FROM usuario WHERE id = ?", 
+        db.query("SELECT Nombre, Correo, Imagen, descripcion FROM usuario WHERE id = ?", 
         req.params.id,
-        (er, result) => { //Muestra la info del usuario que inicio sesion
+        (er, result) => { 
         if (er) {
             resp.json({
             msg: "Err BD"
             })
-            console.log(er); //Mostrar qué error hubo
+            console.log(er); 
         } else if (result.length > 0) {
             resp.json(result[0]);
-            // console.log(result);
         } else {
             resp.json({
             msg: "No result"
@@ -157,6 +156,85 @@ app.get("/user/:id",
         })
     }
 )
+
+app.put(
+    "/updateUser/:id",
+    Archivo.single("image"), 
+    (req, resp) => {
+        const id = req.params.id
+        const {name, email, password, description} = req.body;
+        
+        //declaramos un query para mantener un mejor control de los campos
+        let sqlQuery = "UPDATE usuario SET Nombre = ?, Correo = ?, descripcion = ?"; 
+        let params = [name, email, description];
+        
+        //validamos si la contraseña es nueva 
+        if(password && password.trim() !== ""){
+            sqlQuery+= ", Contra = ?"; 
+            params.push(password); 
+        }
+
+        if(req.file){
+            const image = req.file.buffer.toString("base64");  
+            sqlQuery += ", Imagen = ?"; 
+            params.push(image); 
+        }
+
+        sqlQuery += " WHERE id = ?"; 
+        params.push(id); 
+
+        db.query(sqlQuery, params,
+            (err, result) =>{
+                if(err){
+                    resp.json({
+                        msg: "Error BD"
+                    })
+                } else {
+                    resp.json({
+                        msg: "Usuario modificado"
+                    });
+                    console.log(result); 
+                }
+            }           
+        )
+    }
+)
+
+//Endpoint para verificar la contraseña y autorizar su edicion 
+app.post("/verifyPassword", 
+    (req, resp)=>{
+    const { userId, passwordToCheck } = req.body; 
+    db.query("SELECT Contra FROM usuario WHERE id = ?", 
+    [userId], 
+    (er, result) =>{
+        if(er){
+            resp.json({
+                msg: "Err BD" 
+            })
+            console.log(er); 
+        } else if (result.length > 0){
+            const contraReal = result[0].Contra;
+            
+            if(passwordToCheck === contraReal) {
+                resp.json({
+                    valid: true, 
+                    msg: "Contraseña correcta"
+                })
+            } else{
+                resp.json({
+                    valid: false,
+                    msg: "Contraseña incorrecta"
+                })
+            }
+        } else {
+            resp.json({
+            msg: "No result"
+            })
+        }
+    }
+    )
+
+}); 
 
 //Endpoint para registrar obras 
 app.post(

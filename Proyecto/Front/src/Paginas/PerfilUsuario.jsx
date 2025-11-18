@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import "./CSS/Perfil.css";
 import { NavbarPerfil } from "./Componentes/NavbarPerfil";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react"; 
+import axios from "axios"; 
 
 import Apl from "./CSS/Images/Perfil/Aplausos.png";
 import Seg from "./CSS/Images/Perfil/Seguidores.png";
@@ -9,12 +11,8 @@ import Correo from "./CSS/Images/Perfil/Correo.png";
 import Save from "./CSS/Images/Perfil/Guardado.png";
 import Upload from "./CSS/Images/Perfil/Upload.png";
 
-
-
-
-
 export const PerfilUsuario = () => {
-  const [mostrarLibro, setMostrarLibro] = useState(false);
+  const [mostrarLibro, setMostrarLibro] = useState(false);  
   const navigate = useNavigate();
 
   const UploadPage = () => {
@@ -37,12 +35,25 @@ export const PerfilUsuario = () => {
 
   const [preview, setPreview] = useState(null);
 
+  //funcion para manejar la info de cada input 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setUserInfo({
+      ...userInfo, 
+      [name]: value
+    })
+  }
+
   const handleImageChange = (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) {
       setPreview(null);
+      setNuevaImagen(null); 
       return;
     }
+
+    setNuevaImagen(file); 
     const objectUrl = URL.createObjectURL(file);
     setPreview(objectUrl);
   };
@@ -53,6 +64,107 @@ export const PerfilUsuario = () => {
     };
   }, [preview]);
 
+  //datos del usuario que inicio sesion
+  const [userInfo, setUserInfo] = useState([]); 
+  const userID = localStorage.getItem("userID");  
+
+  const [contraActual, setContraActual] = useState("");
+  const [contraNueva, setContraNueva] = useState(""); 
+
+  const [isContraVerified, setIsContraVerified] = useState(false); //dependiendo del estado muestra u oculta el campo de nueva contraseña
+  const [errorMsg, setErrorMsg] = useState(""); 
+
+  const [nuevaImagen, setNuevaImagen] = useState(null);
+
+  //funcion para ejecutar cuando el usuario haga clic fuera del input 
+  const verificarContra = async()=> {
+      if(!contraActual){
+        setIsContraVerified(false);
+        return;
+      }
+    
+      try {
+        const resp = await axios.post("http://localhost:3001/verifyPassword", {
+          userId: userID, 
+          passwordToCheck: contraActual
+        });
+
+        if(resp.data.valid){
+          setIsContraVerified(true);
+          setErrorMsg(""); 
+        } else {
+          setIsContraVerified(false); 
+          setErrorMsg("La contraseña actual no es correcta"); 
+        }
+      } catch (error) {
+
+      }
+  }
+
+  //funcion para obtener la informacion del usuario
+  const getUser = async()=> {
+      try{
+        const resp = await axios.get(`http://localhost:3001/user/${userID}`);
+          if(resp.data.msg === "Err BD"){
+            alert("Error con base de datos"); 
+          } else if (resp.data.msg === "No result"){
+            alert("Error al obtener la info del usuario"); 
+          } else {
+            setUserInfo(resp.data); 
+            console.log(resp.data);  
+          }
+      } catch (error){
+        alert("Error al hacer la peticion"); 
+      }
+    }
+  useEffect(()=>{
+    getUser(); 
+  }, [userID]);
+
+ //maneja los cambios en el campo de la contraseña actual
+  const handleTyping = (e) =>{
+    setContraActual(e.target.value); 
+    setIsContraVerified(false); 
+    setErrorMsg(""); 
+  }
+
+  //peticion para modificar la informacion del usuario 
+  const updateUser = async(e)=> {
+    e.preventDefault(); 
+      const frmUpdateData = new FormData();
+      frmUpdateData.append("name", userInfo.Nombre);
+      frmUpdateData.append("email", userInfo.Correo);
+      frmUpdateData.append("description", userInfo.descripcion); 
+
+      if(contraNueva && contraNueva.trim() !== ""){
+        frmUpdateData.append("password", contraNueva); 
+      }
+
+      if(nuevaImagen){
+        frmUpdateData.append("image", nuevaImagen); 
+      }
+
+    try{
+      const resp = await axios.put(`http://localhost:3001/updateUser/${userID}`,
+        frmUpdateData
+      );
+
+      if(resp.data.msg === "Usuario modificado"){
+        alert("Usuario modificado con exito"); 
+        setNuevaImagen(null); 
+        setContraActual("");
+        setIsContraVerified(false);  
+        getUser(); 
+      } else if(resp.data.msg === "Err BD"){
+        alert("Error al modificar el usuario");
+      } 
+      console.log(resp.data); 
+    } catch (error) {
+      console.log(error); 
+      alert("Error al hacer la peticion"); 
+    }
+  }
+
   return (
     <div className="perfilContainer">
       <NavbarPerfil />
@@ -61,13 +173,13 @@ export const PerfilUsuario = () => {
         <section className="perfilHeader">
           <div className="perfilAvatar">
             <img
-              src="https://static.wixstatic.com/media/4236a4_aa83eff30f804e98bf49d1092fdec04c~mv2.jpg/v1/fill/w_280,h_392,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Frida%20Kahlo.jpg"
+              src={"data:image/png;base64," + userInfo.Imagen}
               alt="Avatar"
             />
           </div>
 
           <div className="perfilInfo">
-            <h1>Frida Kahlo</h1>
+            <h1>{userInfo.Nombre}</h1>
 
             <div className="perfilStats">
               <div className="perfilDato">
@@ -80,7 +192,7 @@ export const PerfilUsuario = () => {
               </div>
               <div className="perfilDato">
                 <img src={Correo} alt="Correo" />
-                <p>fridakahalo@gmail.com</p>
+                <p>{userInfo.Correo}</p>
               </div>
 
               <div className="perfilStatsRight">
@@ -153,36 +265,59 @@ export const PerfilUsuario = () => {
               ✕
             </button>
 
-            <form className="book" >
+            <form onSubmit={updateUser} className="book" noValidate>
               <div className="page left">
                 <label htmlFor="username">NOMBRE DE USUARIO:</label>
                 <input
                   type="text"
                   id="username"
-                  name="username"
+                  name="Nombre"
+                  value={userInfo.Nombre}
+                  onChange={handleChange}
                 />
 
                 <label htmlFor="email">CORREO:</label>
                 <input
                   type="email"
                   id="email"
-                  name="email"
+                  name="Correo"
+                  value={userInfo.Correo}
+                  onChange={handleChange}
                 />
 
                 <label htmlFor="password">CONTRASEÑA:</label>
                 <input
                   type="password"
                   id="password"
-                  name="password"
-                  placeholder="Nueva contraseña"
+                  name="Contra"
+                  value = {contraActual}
+                  onChange={handleTyping}
+                  onBlur = {verificarContra} //este evento detecta cuando el usuario hace clic fuera del input 
+                  className={errorMsg ? "input-error" : ""}
+                  placeholder="Ingrese contraseña actual"
                 />
 
+                {errorMsg && <span className="error-text">{errorMsg}</span>}
+                
+                {isContraVerified && (
+                  <input
+                    type="password"
+                    id="password"
+                    name="Contra"
+                    value= {contraNueva}
+                    onChange={(e)=> setContraNueva(e.target.value)}
+                    placeholder="Nueva contraseña"
+                  />
+                )}
+  
                 <label htmlFor="about">CUÉNTANOS SOBRE TI:</label>
                 <textarea
                   id="about"
-                  name="about"
+                  name="descripcion"
                   rows="4"
                   placeholder="Escribe algo sobre ti..."
+                  value = {userInfo.descripcion}
+                  onChange = {handleChange}
                 ></textarea>
               </div>
 
@@ -190,7 +325,7 @@ export const PerfilUsuario = () => {
                 <p className="subtitle">IMAGEN DE USUARIO</p>
                 <div className="user-img">
                   <img
-                    src={preview || "https://static.wixstatic.com/media/4236a4_aa83eff30f804e98bf49d1092fdec04c~mv2.jpg/v1/fill/w_280,h_392,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Frida%20Kahlo.jpg"}
+                    src={preview || "data:image/png;base64," + userInfo.Imagen}
                     alt="Imagen de usuario"
                   />
                 </div>
@@ -205,10 +340,9 @@ export const PerfilUsuario = () => {
                   <label htmlFor="profileImage" className="upload-btn">
                     Seleccionar imagen
                   </label>
-                </div>
+                </div>  
 
-                <button type="button" className="btn">
-                  Guardar
+                <button type="submit" className="btn-save">
                 </button>
               </div>
             </form>
