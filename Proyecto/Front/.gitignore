@@ -11,6 +11,12 @@
 # production
 /build
 
+# Ignora el contenido de la carpeta uploads
+/Server/uploads/*
+
+# Para que solo tome en cuenta la carpeta
+!Server/uploads/.gitkeep
+
 # misc
 .DS_Store
 .env.local
