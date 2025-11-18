@@ -1,14 +1,18 @@
 import React, { useState } from "react";
 import "./CSS/PublicarObra.css";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react"; 
 
 import Upload from "./CSS/Images/Perfil/Upload.png";
+import axios from "axios"; 
 
 export function PublicarObra() {
   const [imagen, setImagen] = useState(null);
+  const [preview, setPreview] = useState(null); 
   const [titulo, setTitulo] = useState("");
-  const navigate = useNavigate();
+  const userID = localStorage.getItem("userID");  
 
+  const navigate = useNavigate();
   const Publicar = () => {
     navigate("/Home");
   };
@@ -17,12 +21,18 @@ export function PublicarObra() {
     navigate("/PerfilUsuario");
   };
 
-  
-
   const handleImagen = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImagen(URL.createObjectURL(file));
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      const maxSize = 5 * 1024 * 1024; 
+
+      if(selectedFile.size > maxSize) {
+        alert("La imagen es muy pesada. El limite es de 5MB"); 
+        e.target.value = null; 
+        return; 
+      }
+      setImagen(selectedFile);
+      setPreview(URL.createObjectURL(selectedFile));
     }
   };
 
@@ -31,16 +41,50 @@ export function PublicarObra() {
     setTitulo("");
   };
 
+  const sendDataPublicacion = async (e)=>{
+    e.preventDefault();
+
+    const formDataPublicacion = new FormData(); 
+    formDataPublicacion.append("titlePost", titulo); 
+    formDataPublicacion.append("imagePost", imagen); 
+
+    //para comprobar que los datos se esten mandando como deberia 
+    console.log("Enviando estos datos:", {
+      userID: userID, 
+      titulo: titulo, 
+      imagen: imagen
+    });
+    try{
+      const resp = await axios.post(
+        `http://localhost:3001/registerPublicacion/${userID}`,
+        formDataPublicacion
+      );
+
+      if(resp.data.msg === "Registrado"){
+        alert("Publicacion registrada"); 
+        
+        //Limpiamos los campos
+        setTitulo(""); 
+        setImagen(null); 
+      } else if (resp.data.msg === "ErrorDB"){
+        alert("Error al registrar publicacion"); 
+      }
+      console.log(resp.data); 
+    } catch(error) {
+      console.log(error); 
+      alert("Error en la peticion"); 
+    }
+  }
   return (
-    <div className="publicar-container">
+    <form onSubmit={sendDataPublicacion} className="publicar-container" noValidate>
         <div className="marco">
             {imagen ? (
-            <img src={imagen} alt="Obra seleccionada" className="imagen-preview" />
+            <img src={preview} alt="Obra seleccionada" className="imagen-preview" />
             ) : (
             <p className="texto-seleccion">SELECCIONA UNA O MÁS IMÁGENES</p>
             )}
             <label className="input-imagen">
-            <input type="file" accept="image/*" onChange={handleImagen} hidden />
+            <input type="file"  accept="image/*" onChange={handleImagen} hidden />
             </label>
             <span className="flecha izquierda">❮</span>
             <span className="flecha derecha">❯</span>
@@ -54,28 +98,26 @@ export function PublicarObra() {
             <input type="file" accept="image/*" onChange={handleImagen} hidden />
         </label>
 
-      <div className="info-obra">
-        <h2 className="titulo">NOMBRE DE TU OBRA</h2>
-        <div className="placa">
-          <input
-            type="text"
-            placeholder=""
-            value={titulo}
-            onChange={(e) => setTitulo(e.target.value)}
-            className="input-titulo"
-          />
+        <div className="info-obra">
+          <h2 className="titulo">NOMBRE DE TU OBRA</h2>
+          <div className="placa">
+            <input
+              type="text"
+              placeholder=""
+              value={titulo}
+              onChange={(e) => setTitulo(e.target.value)}
+              className="input-titulo"
+            />
+          </div>
         </div>
-      </div>
 
-    
-
-      <div className="botones">
-        <button className="btn-cancelar" onClick={Cancelar}>
-          CANCELAR
-        </button>
-        <button className="btn-publicar" onClick={Publicar}>PUBLICAR</button>
-      </div>
-    </div>
+        <div className="botones">
+          <button className="btn-cancelar" onClick={Cancelar}>
+            CANCELAR
+          </button>
+          <button type = "submit" className="btn-publicar" onClick={Publicar}>PUBLICAR</button>
+        </div>
+    </form>
   );
 }
 export default PublicarObra;

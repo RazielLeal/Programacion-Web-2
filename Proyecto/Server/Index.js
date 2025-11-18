@@ -43,10 +43,37 @@ const filefilter =(req, file, cb) => {
 
 const espacio = multer.memoryStorage();
 
+//sera para manejar las rutas de archivo en donde se guardaran las imagenes
+const path = require('path'); 
+
+//para guardar en disco y no en memoria
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/'); //aqui se van a guardar las imagenes de las publicaciones
+    }, 
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random()* 1E9); 
+        const ext = path.extname(file.originalname);
+        cb(null, file.fieldname + '-' + uniqueSuffix + ext);  
+    }
+});
+
+const upload = multer({ 
+    storage: storage, 
+    limits: {
+        fileSize: 5 * 1024 * 1024
+    }
+}); 
+
 const Archivo = multer({
     storage: espacio,
-    fileFilter: filefilter
+    fileFilter: filefilter,
+    limits: {
+        fileSize: 5 * 1024 * 1024
+    }
 })
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); 
 
 app.post(
     "/register", 
@@ -133,15 +160,18 @@ app.get("/user/:id",
 
 //Endpoint para registrar obras 
 app.post(
-    "/register", 
-    Archivo.single("file"),
+    "/registerPublicacion/:id", //se envia como parametro el id del usuario que inicio sesion
+    upload.single("imagePost"),
     (req, resp) => {
-        const {name, mail, pass} = req.body;
-        const imagen = req.file.buffer.toString("base64");
+        const {titlePost} = req.body;
+
+        if(!req.file) return resp.json({msg: "Error: No hay imagen"});
+        const id = req.params.id; 
+        const imageURL = `http://localhost:3001/uploads/${req.file.filename}`;
 
         db.query(
-            "INSERT INTO usuario(Nombre, Correo, Contra, Imagen) VALUES(?,?,?,?)", 
-            [name, mail, pass, imagen], 
+            "INSERT INTO publicacion(id_usuario, titulo, fechaPublicacion, imagen) VALUES(?,?,NOW(),?)", 
+            [id, titlePost, imageURL], 
             (err, result) => {
                 if (err) {
                     resp.json({
