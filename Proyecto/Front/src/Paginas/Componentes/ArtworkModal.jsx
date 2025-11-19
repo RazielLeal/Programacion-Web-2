@@ -107,3 +107,5 @@ export function ArtworkModal({ allArtworks, currentArtwork, onClose }) {
     </div>
   );
 }
+
+export default ArtworkModal;

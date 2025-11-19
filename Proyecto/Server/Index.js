@@ -157,17 +157,20 @@ app.get("/user/:id",
     }
 )
 
+//Endpoint para modificar la informacion del usuario 
 app.put(
-    "/updateUser/:id",
+    "/updateUser/:id", //se manda como parametro el id para saber cual es el usuario que se va a modificar 
     Archivo.single("image"), 
     (req, resp) => {
         const id = req.params.id
         const {name, email, password, description} = req.body;
         
-        //declaramos un query para mantener un mejor control de los campos
+        //declaramos un query para mantener un mejor control de los campos y solo actualizar en los que haya cambios
         let sqlQuery = "UPDATE usuario SET Nombre = ?, Correo = ?, descripcion = ?"; 
         let params = [name, email, description];
         
+        //Falta verificar si los campos de nombres, correo, descripcion estan vacios que no se modifiquen
+
         //validamos si la contraseña es nueva 
         if(password && password.trim() !== ""){
             sqlQuery+= ", Contra = ?"; 
@@ -266,7 +269,29 @@ app.post(
         )
 
     }
-)
+);
 
+//Endpoint para obtener unicamente la imagen de las publicaciones del usuario 
+app.get(
+    "/getImagenPublicaciones/:id", //Para previsualizar la publicacion en el perfil del usuario por medio de su id
+    (req, resp) => {
+        db.query("SELECT id_usuario, imagen FROM publicacion WHERE id_usuario = ?", 
+            req.params.id, 
+            (er, result) => {
+                if(er){
+                    resp.json({
+                        msg: "Err BD"
+                    })
+                } else if (result.length > 0){
+                    resp.json(result);
+                } else {
+                    resp.json({
+                        msg: "No result"
+                    })
+                }
+            }
+        )
+    }
+);
 
 

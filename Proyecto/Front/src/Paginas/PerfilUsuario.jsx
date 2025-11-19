@@ -76,6 +76,9 @@ export const PerfilUsuario = () => {
 
   const [nuevaImagen, setNuevaImagen] = useState(null);
 
+  //datos de la publicacion 
+  const [imagenPublicaciones, setImagenPublicaciones] = useState([]); 
+
   //funcion para ejecutar cuando el usuario haga clic fuera del input 
   const verificarContra = async()=> {
       if(!contraActual){
@@ -103,20 +106,26 @@ export const PerfilUsuario = () => {
 
   //funcion para obtener la informacion del usuario
   const getUser = async()=> {
+      
+      if(!userID){
+        console.log("Esperando userID");
+        return; 
+      }
+    
       try{
         const resp = await axios.get(`http://localhost:3001/user/${userID}`);
           if(resp.data.msg === "Err BD"){
             alert("Error con base de datos"); 
           } else if (resp.data.msg === "No result"){
-            alert("Error al obtener la info del usuario"); 
+            console.log("Error al obtener la info del usuario"); 
           } else {
             setUserInfo(resp.data); 
-            console.log(resp.data);  
+            // console.log(resp.data);  
           }
       } catch (error){
         alert("Error al hacer la peticion"); 
       }
-    }
+  }
   useEffect(()=>{
     getUser(); 
   }, [userID]);
@@ -165,192 +174,197 @@ export const PerfilUsuario = () => {
     }
   }
 
-  return (
-    <div className="perfilContainer">
-      <NavbarPerfil />
+  const getImagenPublicaciones = async()=> {
+      try{
+        const resp = await axios.get(`http://localhost:3001/getImagenPublicaciones/${userID}`);
+          if(resp.data.msg === "Err BD"){
+            alert("Error con base de datos"); 
+          } else if (resp.data.msg === "No result"){
+            console.log("No hay publicaciones registradas"); 
+          } else {
+            if(Array.isArray(resp.data)){
+              setImagenPublicaciones(resp.data); 
+              console.log(resp.data);  
+            }
+          }
+      } catch (error){
+        alert("Error al hacer la peticion"); 
+      }
+  }
 
-      <main className="perfilContent">
-        <section className="perfilHeader">
-          <div className="perfilAvatar">
-            <img
-              src={"data:image/png;base64," + userInfo.Imagen}
-              alt="Avatar"
-            />
-          </div>
+  useEffect(()=>{
+    if(userID) {
+      getImagenPublicaciones(); 
+    }
+  }, [userID]); 
 
-          <div className="perfilInfo">
-            <h1>{userInfo.Nombre}</h1>
+  if(userInfo){
+      return (
+        <div className="perfilContainer">
+          <NavbarPerfil />
 
-            <div className="perfilStats">
-              <div className="perfilDato">
-                <img src={Apl} alt="Aplausos" />
-                <p>115.5 M</p>
+          <main className="perfilContent">
+            <section className="perfilHeader">
+              <div className="perfilAvatar">
+                <img
+                  src={"data:image/png;base64," + userInfo.Imagen}
+                  alt="Avatar"
+                />
               </div>
-              <div className="perfilDato">
-                <img src={Seg} alt="Seguidores" />
-                <p>20 M</p>
-              </div>
-              <div className="perfilDato">
-                <img src={Correo} alt="Correo" />
-                <p>{userInfo.Correo}</p>
-              </div>
 
-              <div className="perfilStatsRight">
-                <div className="perfilDato">
-                  <img src={Save} alt="guardardo" onClick={Guardados}/>
+              <div className="perfilInfo">
+                <h1>{userInfo.Nombre}</h1>
+
+                <div className="perfilStats">
+                  <div className="perfilDato">
+                    <img src={Apl} alt="Aplausos" />
+                    <p>115.5 M</p>
+                  </div>
+                  <div className="perfilDato">
+                    <img src={Seg} alt="Seguidores" />
+                    <p>20 M</p>
+                  </div>
+                  <div className="perfilDato">
+                    <img src={Correo} alt="Correo" />
+                    <p>{userInfo.Correo}</p>
+                  </div>
+
+                  <div className="perfilStatsRight">
+                    <div className="perfilDato">
+                      <img src={Save} alt="guardardo" onClick={Guardados}/>
+                    </div>
+
+                    <div className="perfilDato">
+                      <img src={Upload} alt="Upload" onClick={UploadPage}/>
+                    </div>
+
+                    <button className="admButton" onClick={handleEditarClick}>
+                      EDITAR PERFIL
+                    </button>
+                  </div>
                 </div>
+              </div>
+            </section>
 
-                <div className="perfilDato">
-                  <img src={Upload} alt="Upload" onClick={UploadPage}/>
-                </div>
+            <section className="galeria">
+              {imagenPublicaciones.length === 0 ? (
+                  <p>Aún no hay publicaciones.</p>
+              ) : (
+                  imagenPublicaciones.map((imgPublicaciones) => (
+                      <div className="obra" key={imgPublicaciones.id_usuario}> 
+                          <img
+                              src={`${imgPublicaciones.imagen}`}
+                              alt="Publicación del usuario"
+                              onClick={() => { console.log("Abrir modal del ID:", imgPublicaciones.id_usuario) }}
+                          />
+                      </div>
+                  ))
+              )}
+              
+            </section>
+          </main>
 
-                <button className="admButton" onClick={handleEditarClick}>
-                  EDITAR PERFIL
+          {/* ⬇️ Modal del libro */}
+          {mostrarLibro && (
+            <div className="overlay" onClick={handleCerrarLibro}>
+              <div className="conteinerMod">
+                {/* Botón de cerrar */}
+                <button
+                  className="cerrarModal"
+                  onClick={() => setMostrarLibro(false)}
+                  type="button"
+                >
+                  ✕
                 </button>
+
+                <form onSubmit={updateUser} className="book" noValidate>
+                  <div className="page left">
+                    <label htmlFor="username">NOMBRE DE USUARIO:</label>
+                    <input
+                      type="text"
+                      id="username"
+                      name="Nombre"
+                      value={userInfo.Nombre}
+                      onChange={handleChange}
+                    />
+
+                    <label htmlFor="email">CORREO:</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="Correo"
+                      value={userInfo.Correo}
+                      onChange={handleChange}
+                    />
+
+                    <label htmlFor="password">CONTRASEÑA:</label>
+                    <input
+                      type="password"
+                      id="password"
+                      name="Contra"
+                      value = {contraActual}
+                      onChange={handleTyping}
+                      onBlur = {verificarContra} //este evento detecta cuando el usuario hace clic fuera del input 
+                      className={errorMsg ? "input-error" : ""}
+                      placeholder="Ingrese contraseña actual"
+                    />
+
+                    {errorMsg && <span className="error-text">{errorMsg}</span>}
+                    
+                    {isContraVerified && (
+                      <input
+                        type="password"
+                        id="password"
+                        name="Contra"
+                        value= {contraNueva}
+                        onChange={(e)=> setContraNueva(e.target.value)}
+                        placeholder="Nueva contraseña"
+                      />
+                    )}
+      
+                    <label htmlFor="about">CUÉNTANOS SOBRE TI:</label>
+                    <textarea
+                      id="about"
+                      name="descripcion"
+                      rows="4"
+                      placeholder="Escribe algo sobre ti..."
+                      value = {userInfo.descripcion}
+                      onChange = {handleChange}
+                    ></textarea>
+                  </div>
+
+                  <div className="page right">
+                    <p className="subtitle">IMAGEN DE USUARIO</p>
+                    <div className="user-img">
+                      <img
+                        src={preview || "data:image/png;base64," + userInfo.Imagen}
+                        alt="Imagen de usuario"
+                      />
+                    </div>
+                    <div className="upload">
+                      <input
+                        type="file"
+                        id="profileImage"
+                        name="profileImage"
+                        accept="image/jpeg, image/png"
+                        onChange={handleImageChange}
+                      />
+                      <label htmlFor="profileImage" className="upload-btn">
+                        Seleccionar imagen
+                      </label>
+                    </div>  
+
+                    <button type="submit" className="btn-save">
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
-          </div>
-        </section>
-
-        <section className="galeria">
-          <div className="obra">
-            <img
-              src="https://www.dailyartmagazine.com/wp-content/uploads/2022/10/the-wounded-deer-768x574.jpg"
-              alt="La noche estrellada"
-            />
-          </div>
-          <div className="obra">
-            <img
-              src="https://www.moas.org/zupload/library/27171/-47039-2048x1070-0.jpg?ztv=20200501145353"
-              alt="Fotografía artística"
-            />
-          </div>
-          <div className="obra">
-            <img
-              src="https://www.singulart.com/blog/wp-content/uploads/2023/10/The-Broken-Column-Frida-Kahlo-848x530-1.jpg"
-              alt="Arte moderno"
-            />
-          </div>
-          <div className="obra">
-            <img
-              src="https://arthive.com/res/media/img/oy1000/work/478/291935@2x.jpeg"
-              alt="Obra repetida"
-            />
-          </div>
-          <div className="obra">
-            <img
-              src="https://shop.fatcatart.com/wp-content/uploads/2017/11/Kahlo_Two_fridas_one-cat-print-w.jpg"
-              alt="Fotografía 2"
-            />
-          </div>
-          <div className="obra">
-            <img
-              src="https://sonyawinner.com/wp-content/uploads/2025/01/Frida-Kahlo-Tree-of-Hope-Remain-Strong-.jpg"
-              alt="Arte 2"
-            />
-          </div>
-        </section>
-      </main>
-
-      {/* ⬇️ Modal del libro */}
-      {mostrarLibro && (
-        <div className="overlay" onClick={handleCerrarLibro}>
-          <div className="conteinerMod">
-            {/* Botón de cerrar */}
-            <button
-              className="cerrarModal"
-              onClick={() => setMostrarLibro(false)}
-              type="button"
-            >
-              ✕
-            </button>
-
-            <form onSubmit={updateUser} className="book" noValidate>
-              <div className="page left">
-                <label htmlFor="username">NOMBRE DE USUARIO:</label>
-                <input
-                  type="text"
-                  id="username"
-                  name="Nombre"
-                  value={userInfo.Nombre}
-                  onChange={handleChange}
-                />
-
-                <label htmlFor="email">CORREO:</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="Correo"
-                  value={userInfo.Correo}
-                  onChange={handleChange}
-                />
-
-                <label htmlFor="password">CONTRASEÑA:</label>
-                <input
-                  type="password"
-                  id="password"
-                  name="Contra"
-                  value = {contraActual}
-                  onChange={handleTyping}
-                  onBlur = {verificarContra} //este evento detecta cuando el usuario hace clic fuera del input 
-                  className={errorMsg ? "input-error" : ""}
-                  placeholder="Ingrese contraseña actual"
-                />
-
-                {errorMsg && <span className="error-text">{errorMsg}</span>}
-                
-                {isContraVerified && (
-                  <input
-                    type="password"
-                    id="password"
-                    name="Contra"
-                    value= {contraNueva}
-                    onChange={(e)=> setContraNueva(e.target.value)}
-                    placeholder="Nueva contraseña"
-                  />
-                )}
-  
-                <label htmlFor="about">CUÉNTANOS SOBRE TI:</label>
-                <textarea
-                  id="about"
-                  name="descripcion"
-                  rows="4"
-                  placeholder="Escribe algo sobre ti..."
-                  value = {userInfo.descripcion}
-                  onChange = {handleChange}
-                ></textarea>
-              </div>
-
-              <div className="page right">
-                <p className="subtitle">IMAGEN DE USUARIO</p>
-                <div className="user-img">
-                  <img
-                    src={preview || "data:image/png;base64," + userInfo.Imagen}
-                    alt="Imagen de usuario"
-                  />
-                </div>
-                <div className="upload">
-                  <input
-                    type="file"
-                    id="profileImage"
-                    name="profileImage"
-                    accept="image/jpeg, image/png"
-                    onChange={handleImageChange}
-                  />
-                  <label htmlFor="profileImage" className="upload-btn">
-                    Seleccionar imagen
-                  </label>
-                </div>  
-
-                <button type="submit" className="btn-save">
-                </button>
-              </div>
-            </form>
-          </div>
+          )}
         </div>
-      )}
-    </div>
-  );
+      );
+  }
+
 };
 
 export default PerfilUsuario;

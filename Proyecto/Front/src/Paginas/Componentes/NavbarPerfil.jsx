@@ -94,15 +94,16 @@ export function NavbarPerfil() {
   }, []); // El array vacío [] significa que esto solo se ejecuta al montar y desmontar
   
     const getUser = async()=> {
+
     try{
       const resp = await axios.get(`http://localhost:3001/user/${userID}`);
         if(resp.data.msg === "Err BD"){
           alert("Error con base de datos"); 
         } else if (resp.data.msg === "No result"){
-          alert("Error al obtener la info del usuario"); 
+          console.log("Error al obtener la info del usuario"); 
         } else {
           setUserInfo(resp.data); 
-          console.log(resp.data);  
+          // console.log(resp.data);  
         }
     } catch (error){
       alert("Error al hacer la peticion"); 
@@ -112,7 +113,7 @@ export function NavbarPerfil() {
      getUser(); 
    }, [userID]);
 
-  if(userInfo){
+  if(userInfo && userID){
     return (
       <header className="navbar-perfil">
         <div className="navbar-left" onClick={goHome}>

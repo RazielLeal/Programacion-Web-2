@@ -10,6 +10,7 @@ import Guardados from './Paginas/Guardados';
 import PerfilArtista from './Paginas/PerfilArtista';
 import PerfilUsuario from './Paginas/PerfilUsuario';
 import PublicarObra from './Paginas/PublicarObra';
+import ArtworkModal from './Paginas/Componentes/ArtworkModal';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/PerfilUsuario" element={<PerfilUsuario />}></Route>
         <Route path='/PublicarObra' element={<PublicarObra />}></Route>
         <Route path="/Register" element={<Register />}></Route>
+        <Route path="/ArtworkModal" element={<ArtworkModal />}></Route>
       </Routes>
     </BrowserRouter>
   );
