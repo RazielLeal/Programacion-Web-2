@@ -156,10 +156,12 @@ export function NavbarPerfil() {
           {/* 4. ASIGNA EL REF al contenedor de perfil */}
           <div className="profile-container" ref={profileRef}>
             <div className="user-stamp" onClick={toggleProfile}>
-              <img
-                src={"data:image/png;base64," + userInfo.Imagen}
-                alt="Usuario"
-              />
+              {userID && (
+                <img
+                  src={"data:image/png;base64," + userInfo.Imagen}
+                  alt="Usuario"
+                />
+              )}
             </div>
 
             <div className={isProfileOpen ? "profile-modal active" : "profile-modal"}>

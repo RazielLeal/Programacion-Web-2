@@ -23,7 +23,7 @@ export function ArtworkItem({ artworkImage, artistImage, artistName, onArtworkCl
         </div>      
         
       {/* 2. La info del artista */}
-      <div className="artist-info" onClick={goArtistProfile}>
+      <div className="artist-item-info " onClick={goArtistProfile}>
         <img src={artistImage} alt={artistName} className="artist-avatar" />
         <img src={pedestalImg} alt="Pedestal" className="pedestal-image" />
         <p className="artist-name">{artistName}</p>

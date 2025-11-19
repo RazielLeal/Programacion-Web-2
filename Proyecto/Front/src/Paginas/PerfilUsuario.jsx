@@ -11,6 +11,8 @@ import Correo from "./CSS/Images/Perfil/Correo.png";
 import Save from "./CSS/Images/Perfil/Guardado.png";
 import Upload from "./CSS/Images/Perfil/Upload.png";
 
+import ArtworkModal from "./Componentes/ArtworkModal";
+
 export const PerfilUsuario = () => {
   const [mostrarLibro, setMostrarLibro] = useState(false);  
   const navigate = useNavigate();
@@ -78,6 +80,7 @@ export const PerfilUsuario = () => {
 
   //datos de la publicacion 
   const [imagenPublicaciones, setImagenPublicaciones] = useState([]); 
+  const [idPostSeleccionado, setIdPostSeleccionado] = useState(null); 
 
   //funcion para ejecutar cuando el usuario haga clic fuera del input 
   const verificarContra = async()=> {
@@ -174,6 +177,7 @@ export const PerfilUsuario = () => {
     }
   }
 
+  //funcion solo para obtener las imagenes de las publicaciones propias del usuario
   const getImagenPublicaciones = async()=> {
       try{
         const resp = await axios.get(`http://localhost:3001/getImagenPublicaciones/${userID}`);
@@ -206,10 +210,12 @@ export const PerfilUsuario = () => {
           <main className="perfilContent">
             <section className="perfilHeader">
               <div className="perfilAvatar">
+                {userID && (
                 <img
                   src={"data:image/png;base64," + userInfo.Imagen}
-                  alt="Avatar"
+                  alt="Usuario"
                 />
+                )}
               </div>
 
               <div className="perfilInfo">
@@ -251,11 +257,14 @@ export const PerfilUsuario = () => {
                   <p>Aún no hay publicaciones.</p>
               ) : (
                   imagenPublicaciones.map((imgPublicaciones) => (
-                      <div className="obra" key={imgPublicaciones.id_usuario}> 
+                      <div className="obra" key={imgPublicaciones.id_publicacion}> 
                           <img
                               src={`${imgPublicaciones.imagen}`}
                               alt="Publicación del usuario"
-                              onClick={() => { console.log("Abrir modal del ID:", imgPublicaciones.id_usuario) }}
+                              onClick={() => {
+                                console.log("Clic detectado, ID de la obra:", imgPublicaciones.id_publicacion);
+                                setIdPostSeleccionado(imgPublicaciones.id_publicacion);
+                              }}
                           />
                       </div>
                   ))
@@ -264,6 +273,17 @@ export const PerfilUsuario = () => {
             </section>
           </main>
 
+          {idPostSeleccionado && (
+            <ArtworkModal 
+              // 1. Pasamos TODA la lista (para saber cuál es anterior/siguiente)
+              listaPublicaciones={imagenPublicaciones} 
+              
+              // 2. Pasamos el ID donde se hizo clic (para saber dónde empezar)
+              initialId={idPostSeleccionado} 
+              
+              onClose={() => setIdPostSeleccionado(null)} 
+            />
+          )}
           {/* ⬇️ Modal del libro */}
           {mostrarLibro && (
             <div className="overlay" onClick={handleCerrarLibro}>

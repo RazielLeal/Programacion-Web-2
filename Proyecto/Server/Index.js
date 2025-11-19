@@ -275,7 +275,7 @@ app.post(
 app.get(
     "/getImagenPublicaciones/:id", //Para previsualizar la publicacion en el perfil del usuario por medio de su id
     (req, resp) => {
-        db.query("SELECT id_usuario, imagen FROM publicacion WHERE id_usuario = ?", 
+        db.query("SELECT id_publicacion, imagen FROM publicacion WHERE id_usuario = ?", 
             req.params.id, 
             (er, result) => {
                 if(er){
@@ -293,5 +293,44 @@ app.get(
         )
     }
 );
+
+//Endpoint para obtener los detalles de la obra y el usuario 
+app.get(
+    "/getPublicaciones/:id", 
+    (req, resp) => {
+        const id = req.params.id; 
+
+        const sqlQuery = `
+            SELECT
+                p.titulo, 
+                p.fechaPublicacion,
+                p.imagen AS imagenPost, 
+                u.Nombre AS nombreUsuario, 
+                u.Imagen AS imagenUsuario
+            FROM publicacion p 
+            INNER JOIN usuario u ON p.id_usuario = u.id
+            WHERE p.id_publicacion = ?
+        `;
+
+        db.query(sqlQuery, [id], (err, result)=>{
+            if(err){
+                return resp.json({
+                    msg: "Err BD"
+                });
+            }
+
+            if(result.length>0){
+                resp.json(result[0]); 
+            } else {
+                resp.json({
+                    msg: "No se encontraron los datos por alguna extraña razon"
+                });
+            }
+        })
+
+
+    }
+
+)
 
 
