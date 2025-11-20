@@ -135,7 +135,7 @@ app.post("/login", (req, resp) => {
     );
 });
 
-//Endpoint para obtener la info del usuario que inicio sesion por medio del id 
+//Endpoint para obtener la info del usuario por medio del id 
 app.get("/user/:id", 
     (req, resp) => {
         db.query("SELECT Nombre, Correo, Imagen, descripcion FROM usuario WHERE id = ?", 
@@ -271,7 +271,7 @@ app.post(
     }
 );
 
-//Endpoint para obtener unicamente la imagen de las publicaciones del usuario 
+//Endpoint para obtener unicamente la imagen de las publicaciones propias del usuario
 app.get(
     "/getImagenPublicaciones/:id", //Para previsualizar la publicacion en el perfil del usuario por medio de su id
     (req, resp) => {
@@ -294,9 +294,9 @@ app.get(
     }
 );
 
-//Endpoint para obtener los detalles de la obra y el usuario 
+//Endpoint para obtener los detalles de las publicaciones propias del usuario
 app.get(
-    "/getPublicaciones/:id", 
+    "/getPublicaciones/:id", //se manda como parametro el id del usuario que inicio sesion 
     (req, resp) => {
         const id = req.params.id; 
 
@@ -333,4 +333,31 @@ app.get(
 
 )
 
+//Endpoint para obtener todas las publicaciones con todos los usuarios que las hicieron, el feed o la galeria basicamente 
+app.get("/feed", (req, resp) =>{
+    const sqlQuery = `
+        SELECT 
+            p.id_publicacion, 
+            p.titulo, 
+            p.fechaPublicacion,
+            p.imagen AS imagenPost,
+            u.id as idUsuario,  
+            u.Nombre AS nombreUsuario,  
+            u.Imagen AS imagenUsuario
+        FROM publicacion p 
+        INNER JOIN usuario u ON p.id_usuario = u.id
+        ORDER BY p.fechaPublicacion DESC 
+    `; 
+
+    db.query(sqlQuery, (err, result)=>{
+        if(err){
+            resp.json({
+                msg: "Err BD"
+            })
+        } else {
+            resp.json(result); 
+        }
+    })
+
+});
 

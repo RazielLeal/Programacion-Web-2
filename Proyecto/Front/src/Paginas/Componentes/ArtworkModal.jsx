@@ -3,7 +3,9 @@ import axios from 'axios';
 import './ArtworkModal.css'; 
 
 export function ArtworkModal({ listaPublicaciones, initialId, onClose }) {
-  
+  console.log("--- DEBUG MODAL ---");
+  console.log("Lista recibida (tamaño):", listaPublicaciones?.length);
+  console.log("ID buscado:", initialId);
   // 1. Estado para el índice actual (0, 1, 2...)
   // Buscamos en qué posición de la lista está el ID inicial
   const [currentIndex, setCurrentIndex] = useState(() => {

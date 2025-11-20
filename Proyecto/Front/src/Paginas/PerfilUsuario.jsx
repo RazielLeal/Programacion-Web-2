@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./CSS/Perfil.css";
 import { NavbarPerfil } from "./Componentes/NavbarPerfil";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react"; 
 import axios from "axios"; 
 
@@ -16,6 +16,8 @@ import ArtworkModal from "./Componentes/ArtworkModal";
 export const PerfilUsuario = () => {
   const [mostrarLibro, setMostrarLibro] = useState(false);  
   const navigate = useNavigate();
+
+  let {idUsuario} = useParams(); 
 
   const UploadPage = () => {
     navigate("/PublicarObra");
@@ -88,7 +90,7 @@ export const PerfilUsuario = () => {
         setIsContraVerified(false);
         return;
       }
-    
+
       try {
         const resp = await axios.post("http://localhost:3001/verifyPassword", {
           userId: userID, 
@@ -110,13 +112,12 @@ export const PerfilUsuario = () => {
   //funcion para obtener la informacion del usuario
   const getUser = async()=> {
       
-      if(!userID){
-        console.log("Esperando userID");
-        return; 
+      if(!idUsuario){ //si no existe es porque ingreso desde el apartado de verPerfil 
+        idUsuario = userID; 
       }
-    
+      
       try{
-        const resp = await axios.get(`http://localhost:3001/user/${userID}`);
+        const resp = await axios.get(`http://localhost:3001/user/${idUsuario}`);
           if(resp.data.msg === "Err BD"){
             alert("Error con base de datos"); 
           } else if (resp.data.msg === "No result"){
@@ -131,7 +132,7 @@ export const PerfilUsuario = () => {
   }
   useEffect(()=>{
     getUser(); 
-  }, [userID]);
+  }, [idUsuario]);
 
  //maneja los cambios en el campo de la contraseña actual
   const handleTyping = (e) =>{
