@@ -145,9 +145,15 @@ export const PerfilUsuario = () => {
   const updateUser = async(e)=> {
     e.preventDefault(); 
       const frmUpdateData = new FormData();
-      frmUpdateData.append("name", userInfo.Nombre);
-      frmUpdateData.append("email", userInfo.Correo);
       frmUpdateData.append("description", userInfo.descripcion); 
+
+      if(userInfo.Nombre && userInfo.Nombre.trim() !== ""){
+        frmUpdateData.append("name", userInfo.Nombre);
+      }
+
+      if(userInfo.Correo && userInfo.Correo.trim() !== ""){
+        frmUpdateData.append("email", userInfo.Correo);
+      }
 
       if(contraNueva && contraNueva.trim() !== ""){
         frmUpdateData.append("password", contraNueva); 
@@ -229,7 +235,7 @@ export const PerfilUsuario = () => {
                   </div>
                   <div className="perfilDato">
                     <img src={Seg} alt="Seguidores" />
-                    <p>20 M</p>
+                    <p>{userInfo.totalSeguidores || 0}</p>
                   </div>
                   <div className="perfilDato">
                     <img src={Correo} alt="Correo" />

@@ -138,7 +138,19 @@ app.post("/login", (req, resp) => {
 //Endpoint para obtener la info del usuario por medio del id 
 app.get("/user/:id", 
     (req, resp) => {
-        db.query("SELECT Nombre, Correo, Imagen, descripcion FROM usuario WHERE id = ?", 
+        const sql = `
+        SELECT 
+            u.Nombre, 
+            u.Correo, 
+            u.Imagen, 
+            u.descripcion,
+            /* Subconsulta para contar SEGUIDORES (Gente que me admira a mí) */
+            (SELECT COUNT(*) FROM admirador WHERE id_admirado = u.id) AS totalSeguidores
+        FROM usuario u 
+        WHERE u.id = ?
+        `;
+
+        db.query(sql, 
         req.params.id,
         (er, result) => { 
         if (er) {
@@ -166,10 +178,19 @@ app.put(
         const {name, email, password, description} = req.body;
         
         //declaramos un query para mantener un mejor control de los campos y solo actualizar en los que haya cambios
-        let sqlQuery = "UPDATE usuario SET Nombre = ?, Correo = ?, descripcion = ?"; 
+        let sqlQuery = "UPDATE usuario SET descripcion = ?"; 
         let params = [name, email, description];
         
         //Falta verificar si los campos de nombres, correo, descripcion estan vacios que no se modifiquen
+        if(name && name.trim() !== ""){
+            sqlQuery+= " Nombre = ?"; 
+            params.push(name); 
+        }
+
+        if(email && email.trim() !== ""){
+            sqlQuery+= ", Correo = ?"; 
+            params.push(email); 
+        }
 
         //validamos si la contraseña es nueva 
         if(password && password.trim() !== ""){
@@ -359,5 +380,60 @@ app.get("/feed", (req, resp) =>{
         }
     })
 
+});
+
+//Endpoint para admirar a artistas y dejar de admirarlos 
+app.post("/admirar", (req, resp)=>{
+    const {idSeguidor, idAdmirado} = req.body; 
+
+    const checkQuery = "SELECT* FROM admirador WHERE id_seguidor = ? AND id_admirado = ?"; 
+    db.query(checkQuery, [idSeguidor, idAdmirado], (err, result)=>{
+        if(err) {
+            return resp.json({
+                msg: "Err BD"
+            });
+        }
+        
+        if(result.length > 0){ //Si arroja un resultado es porque ya lo admira y se debe borrar para dejarlo de admirar
+            const deleteSql = "DELETE FROM admirador WHERE id_seguidor = ? AND id_admirado = ?";
+            db.query(deleteSql, [idSeguidor, idAdmirado], (error) =>{
+                if(error) {
+                    return resp.json({
+                        msg: "Error al dejar de seguir"
+                    })
+                }
+                resp.json({
+                    siguiendo: false,
+                    msg: "Dejaste de admirar"
+                });
+            });
+        } else { //de lo contrario se inserta en la tabla
+            const insertSql = "INSERT INTO admirador (id_seguidor, id_admirado) VALUES (?, ?)";
+            db.query(insertSql, [idSeguidor, idAdmirado], (err)=>{
+                if(err){
+                    resp.json({
+                        msg: "Error al seguir"
+                    });
+                }
+                resp.json({
+                    siguiendo: true, 
+                    msg: "Ahora eres admirador"
+                }); 
+            });
+        }
+    })
+
+});
+
+// Endpoint para saber el estado inicial, basicamente saber si ya lo sigo o no 
+app.post("/checkAdmiracion", (req, res) => {
+    const { idSeguidor, idAdmirado } = req.body;
+    const sql = "SELECT * FROM admirador WHERE id_seguidor = ? AND id_admirado = ?";
+    
+    db.query(sql, [idSeguidor, idAdmirado], (err, result) => {
+        if (err) return res.json({ isAdmirer: false });
+        // Si el array tiene algo, es true. Si está vacío, es false.
+        res.json({ isAdmirer: result.length > 0 }); 
+    });
 });
 

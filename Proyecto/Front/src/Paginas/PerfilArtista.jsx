@@ -16,10 +16,15 @@ export const PerfilArtista = () => {
   //funcion para obtener la informacion del usuario
   const [userInfo, setUserInfo] = useState([]); 
   const {idUsuario} = useParams(); 
+  const miID = localStorage.getItem("userID");
 
   //estados para publicaciones
   const [imagenPublicaciones, setImagenPublicaciones] = useState([]); 
   const [idPostSeleccionado, setIdPostSeleccionado] = useState(null); 
+
+  //estados para admiradores 
+  const [isAdmirer, setIsAdmirer] = useState(false); //verificar si lo estoy admirando
+
 
   const getUser = async()=> {
       try{
@@ -65,6 +70,51 @@ export const PerfilArtista = () => {
     }
   }, [idUsuario]); 
   
+  // 1. VERIFICAR ESTADO INICIAL AL CARGAR
+  useEffect(() => {
+    const checkAdmiracion = async () => {
+        if (!idUsuario) return;
+
+        try {
+            const resp = await axios.post("http://localhost:3001/checkAdmiracion", {
+                idSeguidor: miID,
+                idAdmirado: idUsuario // El dueño del perfil que estamos viendo
+            });
+            setIsAdmirer(resp.data.isAdmirer);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    checkAdmiracion();
+  }, [idUsuario, miID]); // Se ejecuta al entrar al perfil
+
+  const handleAdmirarClick = async () => {
+      if (!miID) {
+          alert("Debes iniciar sesión para admirar");
+          return;
+      }
+
+      // Optimistic UI: Cambiamos el color antes de que el servidor responda
+      const estadoAnterior = isAdmirer;
+      setIsAdmirer(!isAdmirer);
+
+      try {
+          const resp = await axios.post("http://localhost:3001/admirar", {
+              idSeguidor: miID,
+              idAdmirado: idUsuario
+          });
+          
+          // Confirmamos el estado real con la respuesta del servidor
+          setIsAdmirer(resp.data.siguiendo);
+          
+      } catch (error) {
+          console.error("Error al admirar");
+          // Si falla, regresamos al estado anterior
+          setIsAdmirer(estadoAnterior); 
+          alert("Hubo un error al intentar admirar.");
+      }
+  };
   return (
     <div className="perfilContainer">
       <NavbarPerfil />
@@ -94,7 +144,7 @@ export const PerfilArtista = () => {
                   src ={Seg}
                   alt="Seguidores"
                 />
-                <p>10 M</p>
+                <p>{userInfo.totalSeguidores || 0}</p>
               </div>
               <div className="perfilDato">
                 <img
@@ -106,7 +156,12 @@ export const PerfilArtista = () => {
             </div>
           </div>
 
-          <button className="admButton">ADMIRAR</button>
+          <button 
+            className={`admButton ${isAdmirer ? 'activo' : ''}`} // Clase condicional para cambiar color
+            onClick={handleAdmirarClick}
+          >
+            {isAdmirer ? "ADMIRANDO 🤩" : "ADMIRAR"}
+        </button>
         </section>
 
         <section className="galeria">
