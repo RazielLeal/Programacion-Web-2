@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import Busq from "./Imagenes/Busq.png";
 import Home from "./Imagenes/Home.png";
 import axios from "axios"; 
+import Swal from "sweetalert2";
 
 export function NavbarPerfil() {
   const navigate = useNavigate();
@@ -161,7 +162,12 @@ export function NavbarPerfil() {
     try{
       const resp = await axios.get(`http://localhost:3001/user/${userID}`);
         if(resp.data.msg === "Err BD"){
-          alert("Error con base de datos"); 
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Ocurrió un problema con la base de datos.",
+            confirmButtonColor: "#a47d5e",
+          });
         } else if (resp.data.msg === "No result"){
           console.log("Error al obtener la info del usuario"); 
         } else {
@@ -169,7 +175,12 @@ export function NavbarPerfil() {
           // console.log(resp.data);  
         }
     } catch (error){
-      alert("Error al hacer la peticion"); 
+        Swal.fire({
+        icon: "error",
+        title: "Error de conexión",
+        text: "No se pudo hacer la petición al servidor 🚫",
+        confirmButtonColor: "#a47d5e",
+      }); 
     }
   }
    useEffect(()=>{

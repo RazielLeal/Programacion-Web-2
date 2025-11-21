@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react"; 
 
 import Upload from "./CSS/Images/Perfil/Upload.png";
-import axios from "axios"; 
+import axios from "axios";
+import Swal from "sweetalert2";
 
 export function PublicarObra() {
   const [imagen, setImagen] = useState(null);
@@ -27,7 +28,12 @@ export function PublicarObra() {
       const maxSize = 5 * 1024 * 1024; 
 
       if(selectedFile.size > maxSize) {
-        alert("La imagen es muy pesada. El limite es de 5MB"); 
+        Swal.fire({
+          icon: "warning",
+          title: "Imagen demasiado pesada",
+          text: "El límite es de 5MB 📛",
+          confirmButtonColor: "#a47d5e",
+        });
         e.target.value = null; 
         return; 
       }
@@ -46,12 +52,22 @@ export function PublicarObra() {
 
     // === VALIDACIÓN FRONT ===
     if (!titulo.trim()) {
-      alert("Tu obra debe tener un título.");
+      Swal.fire({
+        icon: "info",
+        title: "Falta el título",
+        text: "Tu obra debe tener un título🪶",
+        confirmButtonColor: "#a47d5e",
+      });
       return;
     }
 
     if (!imagen) {
-      alert("Selecciona una imagen para tu obra.");
+      Swal.fire({
+        icon: "info",
+        title: "Selecciona una imagen",
+        text: "Necesitas subir una imagen para publicar tu obra 🖼️",
+        confirmButtonColor: "#a47d5e",
+      });
       return;
     }
 
@@ -72,7 +88,14 @@ export function PublicarObra() {
       );
 
       if(resp.data.msg === "Registrado"){
-        alert("Publicacion registrada"); 
+        Swal.fire({
+          icon: "success",
+          title: "¡Obra publicada! 🎨",
+          text: "Tu publicación se registró correctamente.",
+          confirmButtonColor: "#a47d5e",
+          timer: 1500,
+          showConfirmButton: false,
+        });
         
         //Limpiamos los campos
         setTitulo(""); 
@@ -82,12 +105,22 @@ export function PublicarObra() {
         //redirigimos después de publicar
         navigate("/Home");
       } else if (resp.data.msg === "ErrorDB"){
-        alert("Error al registrar publicacion"); 
+        Swal.fire({
+          icon: "error",
+          title: "Error al publicar",
+          text: "No se pudo registrar la obra.",
+          confirmButtonColor: "#a47d5e",
+        }); 
       }
       console.log(resp.data); 
     } catch(error) {
       console.log(error); 
-      alert("Error en la peticion"); 
+      Swal.fire({
+        icon: "error",
+        title: "Error de conexión",
+        text: "No se pudo procesar la petición.",
+        confirmButtonColor: "#a47d5e",
+      });
     }
   }
   return (

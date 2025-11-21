@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./CSS/Login.css";
 import { Navbar } from "./Componentes/NavbarFotter";
+import Swal from "sweetalert2";
+
 
 function Login() {
   const [correo, setCorre] = useState("");
@@ -29,14 +31,32 @@ function Login() {
         localStorage.setItem("user", respServer.data.user);
         localStorage.setItem("userID", respServer.data.id); 
 
+        Swal.fire({
+          icon: "success",
+          title: "¡Bienvenido!",
+          text: "Inicio de sesión exitoso.",
+          confirmButtonColor: "#a47d5e",
+          timer: 1500,
+          showConfirmButton: false,
+        });
         // Redirigir
         redirect("/Home");
       } else if (respServer.data.msg === "NO") {
-        alert("Usuario no encontrado (verifique sus datos)");
+        Swal.fire({
+          icon: "error",
+          title: "Datos incorrectos",
+          text: "Usuario no encontrado. Verifica tus datos 🥲",
+          confirmButtonColor: "#a47d5e",
+        });
       }
     } catch (error) {
       console.log(error);
-      alert("Error al procesar el Login");
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Hubo un error al procesar el login.",
+        confirmButtonColor: "#a47d5e",
+      });
     }
   };
 
