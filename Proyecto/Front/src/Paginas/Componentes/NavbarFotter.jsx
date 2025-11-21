@@ -3,11 +3,13 @@ import "./Navbar.css"; // nuevo archivo de estilos solo para el navbar
 
 export function Navbar() {
   const nameUser = localStorage.getItem("user");
+  const userID = localStorage.getItem("userID");
   const navigate = useNavigate();
   const location = useLocation();
 
   const Logout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("userID");
     navigate("/login");
     window.location.reload();
   };
@@ -17,7 +19,7 @@ export function Navbar() {
       <h1 className="logo">ARTCONNECT</h1>
 
       <div className="links">
-        {nameUser ? (
+        {nameUser && userID ? (
           <button className="logout-btn" onClick={Logout}>
             Cerrar sesión
           </button>

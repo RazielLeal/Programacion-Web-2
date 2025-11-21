@@ -14,6 +14,9 @@
   box-sizing: border-box;
 }
 .artwork-frame img {
+  position: relative;
+  z-index: 10; /* Eleva la imagen sobre los demás elementos */
+  cursor: pointer;
   width: 100%;
   display: block;
   object-fit: contain; /* Asegura que la imagen llene el marco */
@@ -21,7 +24,7 @@
 }
   
 /* Info del Artista */
-.artist-info {
+.artist-item-info {
   display: flex;
   flex-direction: column;
   align-items: center;

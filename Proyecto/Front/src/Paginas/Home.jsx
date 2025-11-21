@@ -93,45 +93,53 @@ import { ArtworkItem } from "./Componentes/ArtworkItem";
 // 1. IMPORTA EL NUEVO COMPONENTE MODAL (que crearemos en el paso 3)
 import { ArtworkModal } from "./Componentes/ArtworkModal";
 
-// (Tus imports de imágenes y el array 'allArtworks' se quedan igual)
-import obra1 from './CSS/Images/images-home/cuadro3.png';
-import obra2 from './CSS/Images/images-home/cuadro4.png';
-import obra3 from './CSS/Images/images-home/mujer2.png';
-import avatarGenerico from './CSS/Images/serpiente.jpeg';
-
-// ... (al inicio de Home.jsx)
-const allArtworks = [
-  { id: 1, artworkUrl: obra1, title: 'La Noche Estrellada', artistName: 'Van Gogh', artistAvatar: avatarGenerico, likes: '123.5M', comments: [{user: 'Usuario1', text: 'Comentario 1'}, {user: 'Usuario2', text: 'Comentario 2'}, {user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 3'},{user: 'Usuario3', text: 'Comentario 1000'}] },
-  { id: 2, artworkUrl: obra2, title: 'Obra 2', artistName: 'Artista 2', artistAvatar: avatarGenerico, likes: '2.5M', comments: [] },
-  { id: 3, artworkUrl: obra3, title: 'La Dama', artistName: 'Artista 3', artistAvatar: avatarGenerico, likes: '500k', comments: [{user: 'Critico', text: 'Interesante.'}] },
-  { id: 4, artworkUrl: obra1, title: 'Obra 4', artistName: 'Artista 4', artistAvatar: avatarGenerico, likes: '10M', comments: [] },
-  { id: 5, artworkUrl: obra2, title: 'Obra 5', artistName: 'Artista 5', artistAvatar: avatarGenerico, likes: '1k', comments: [] },
-  { id: 6, artworkUrl: obra3, title: 'Obra 6', artistName: 'Artista 6', artistAvatar: avatarGenerico, likes: '3.3M', comments: [] },
-];
+import axios from "axios"; 
+import { useEffect } from "react"; 
 
 const ITEMS_PER_PAGE = 3;
 
 
 function Home() {
   const [currentPage, setCurrentPage] = useState(0);
-  
-  // 2. AÑADE EL ESTADO PARA EL MODAL
-  const [selectedArtwork, setSelectedArtwork] = useState(null);
+  const [trackOffset, setTrackOffset] = useState(0);
 
-  const totalPages = Math.ceil(allArtworks.length / ITEMS_PER_PAGE);
+  const userID = localStorage.getItem("userID");  
+  const [publicaciones, setPublicaciones] = useState([]); //para guardar la informacion de cada una de las publicaciones 
+  const [postIdSeleccionado, setIdPostSeleccionado] = useState(null); //flag para saber en que momento selecciona un post 
 
-  const nextPage = () => { /* ... (tu función) ... */ };
-  const prevPage = () => { /* ... (tu función) ... */ };
-  const trackOffset = currentPage * -100;
-
-  // 3. AÑADE FUNCIONES PARA ABRIR Y CERRAR
-  const handleArtworkClick = (artwork) => {
-    setSelectedArtwork(artwork);
+  const nextPage = () => { 
+    const totalItems = publicaciones.length;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    
+    const maxNegativeOffset = -((totalPages - 1) *100); 
+    if(trackOffset > maxNegativeOffset){
+      setTrackOffset((prev) => prev - 100); 
+    }
+  };
+  const prevPage = () => { 
+    if(trackOffset < 0) {
+      setTrackOffset((prev) => prev + 100); 
+    }
   };
 
-  const closeModal = () => {
-    setSelectedArtwork(null);
-  };
+  //cada vez que se renderice el componente se cargaran las publicaciones 
+  useEffect(()=>{
+    const getFeed = async ()=>{
+      try {
+        const resp = await axios.get("http://localhost:3001/feed");
+
+        const miID = Number(userID); // ID del usuario loggeado
+        const publicacionesDeOtros = resp.data.filter(
+          (p) => p.idUsuario !== miID
+        );
+        setPublicaciones(publicacionesDeOtros); 
+      } catch (error) {
+        console.log("Error al cargar la feed:", error); 
+      }
+    }
+
+    if(userID)getFeed(); 
+  }, [userID])
 
   return (
     <main className="main-home">
@@ -147,15 +155,17 @@ function Home() {
             className="carousel-track"
             style={{ transform: `translateX(${trackOffset}%)` }}
           >
-            {allArtworks.map((item) => (
+            {publicaciones.map((p) => (
               <ArtworkItem
-                key={item.id}
-                // 4. PASA LA FUNCIÓN AL HIJO
-                onArtworkClick={() => handleArtworkClick(item)}
-                // (Pasamos los props de siempre)
-                artworkImage={item.artworkUrl}
-                artistImage={item.artistAvatar}
-                artistName={item.artistName}
+                key={p.id_publicacion}
+                artworkImage={p.imagenPost}
+                artistImage={p.imagenUsuario}
+                artistName={p.nombreUsuario}
+                idUser = {p.idUsuario}
+                onArtworkClick={() => {
+                    console.log("2. Clic recibido en el PADRE (Home). ID:", p.id_publicacion);
+                    setIdPostSeleccionado(p.id_publicacion);
+                }}
               />
             ))}
           </div>
@@ -169,11 +179,11 @@ function Home() {
       <FooterSuelo />
 
       {/* 5. RENDERIZA EL MODAL (si hay una obra seleccionada) */}
-      {selectedArtwork && (
+      {postIdSeleccionado && (
         <ArtworkModal
-          allArtworks={allArtworks}          // <-- Pasa la lista completa
-          currentArtwork={selectedArtwork}   // <-- Pasa el item clicado
-          onClose={closeModal}
+          listaPublicaciones={publicaciones}
+          initialId={postIdSeleccionado} 
+          onClose={()=> setIdPostSeleccionado(null)}
         />
       )}
     </main>

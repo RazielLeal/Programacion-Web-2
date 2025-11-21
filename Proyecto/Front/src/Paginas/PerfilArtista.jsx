@@ -1,12 +1,120 @@
 
 import "./CSS/Perfil.css";
 import { NavbarPerfil } from "./Componentes/NavbarPerfil";
+import ArtworkModal from "./Componentes/ArtworkModal";
 
 import Apl from "./CSS/Images/Perfil/Aplausos.png";
 import Seg from "./CSS/Images/Perfil/Seguidores.png";
 import Correo from "./CSS/Images/Perfil/Correo.png";
+import axios from "axios"; 
+
+import { useEffect } from "react"; 
+import { useState } from "react";
+import { useParams } from "react-router-dom"; 
 
 export const PerfilArtista = () => {
+  //funcion para obtener la informacion del usuario
+  const [userInfo, setUserInfo] = useState([]); 
+  const {idUsuario} = useParams(); 
+  const miID = localStorage.getItem("userID");
+
+  //estados para publicaciones
+  const [imagenPublicaciones, setImagenPublicaciones] = useState([]); 
+  const [idPostSeleccionado, setIdPostSeleccionado] = useState(null); 
+
+  //estados para admiradores 
+  const [isAdmirer, setIsAdmirer] = useState(false); //verificar si lo estoy admirando
+
+
+  const getUser = async()=> {
+      try{
+        const resp = await axios.get(`http://localhost:3001/user/${idUsuario}`);
+          if(resp.data.msg === "Err BD"){
+            alert("Error con base de datos"); 
+          } else if (resp.data.msg === "No result"){
+            console.log("Error al obtener la info del usuario"); 
+          } else {
+            setUserInfo(resp.data); 
+            // console.log(resp.data);  
+          }
+      } catch (error){
+        alert("Error al hacer la peticion"); 
+      }
+  }
+  useEffect(()=>{
+    getUser(); 
+  }, [idUsuario]);
+  
+    //funcion solo para obtener las imagenes de las publicaciones propias del usuario
+  const getImagenPublicaciones = async()=> {
+      try{
+        const resp = await axios.get(`http://localhost:3001/getImagenPublicaciones/${idUsuario}`);
+          if(resp.data.msg === "Err BD"){
+            alert("Error con base de datos"); 
+          } else if (resp.data.msg === "No result"){
+            console.log("No hay publicaciones registradas"); 
+          } else {
+            if(Array.isArray(resp.data)){
+              setImagenPublicaciones(resp.data); 
+              console.log(resp.data);  
+            }
+          }
+      } catch (error){
+        alert("Error al hacer la peticion"); 
+      }
+  }
+
+  useEffect(()=>{
+    if(idUsuario) {
+      getImagenPublicaciones(); 
+    }
+  }, [idUsuario]); 
+  
+  // 1. VERIFICAR ESTADO INICIAL AL CARGAR
+  useEffect(() => {
+    const checkAdmiracion = async () => {
+        if (!idUsuario) return;
+
+        try {
+            const resp = await axios.post("http://localhost:3001/checkAdmiracion", {
+                idSeguidor: miID,
+                idAdmirado: idUsuario // El dueño del perfil que estamos viendo
+            });
+            setIsAdmirer(resp.data.isAdmirer);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    checkAdmiracion();
+  }, [idUsuario, miID]); // Se ejecuta al entrar al perfil
+
+  const handleAdmirarClick = async () => {
+      if (!miID) {
+          alert("Debes iniciar sesión para admirar");
+          return;
+      }
+
+      // Optimistic UI: Cambiamos el color antes de que el servidor responda
+      const estadoAnterior = isAdmirer;
+      setIsAdmirer(!isAdmirer);
+
+      try {
+          const resp = await axios.post("http://localhost:3001/admirar", {
+              idSeguidor: miID,
+              idAdmirado: idUsuario
+          });
+          
+          // Confirmamos el estado real con la respuesta del servidor
+          setIsAdmirer(resp.data.siguiendo);
+          
+      } catch (error) {
+          console.error("Error al admirar");
+          // Si falla, regresamos al estado anterior
+          setIsAdmirer(estadoAnterior); 
+          alert("Hubo un error al intentar admirar.");
+      }
+  };
   return (
     <div className="perfilContainer">
       <NavbarPerfil />
@@ -15,13 +123,13 @@ export const PerfilArtista = () => {
         <section className="perfilHeader">
           <div className="perfilAvatar">
             <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project_%28454045%29.jpg/250px-Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project_%28454045%29.jpg"
+              src={"data:image/png;base64," + userInfo.Imagen}
               alt="Avatar"
             />
           </div>
 
           <div className="perfilInfo">
-            <h1>VAN GOGH</h1>
+            <h1>{userInfo.Nombre}</h1>
 
             <div className="perfilStats">
               <div className="perfilDato">
@@ -36,60 +144,57 @@ export const PerfilArtista = () => {
                   src ={Seg}
                   alt="Seguidores"
                 />
-                <p>10 M</p>
+                <p>{userInfo.totalSeguidores || 0}</p>
               </div>
               <div className="perfilDato">
                 <img
                   src ={Correo}
                   alt="Correo"
                 />
-                <p>correo@gmail.com</p>
+                <p>{userInfo.Correo}</p>
               </div>
             </div>
           </div>
 
-          <button className="admButton">ADMIRAR</button>
+          <button 
+            className={`admButton ${isAdmirer ? 'activo' : ''}`} // Clase condicional para cambiar color
+            onClick={handleAdmirarClick}
+          >
+            {isAdmirer ? "ADMIRANDO 🤩" : "ADMIRAR"}
+        </button>
         </section>
 
         <section className="galeria">
-          <div className="obra">
-            <img
-              src="https://beyondvangogh.com/wp-content/uploads/2024/04/Van-Gogh-Home-775x520.jpg"
-              alt="La noche estrellada"
-            />
-          </div>
-          <div className="obra">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg"
-              alt="Fotografía artística"
-            />
-          </div>
-          <div className="obra">
-            <img
-              src="https://media.newyorker.com/photos/647a15fec91efd6c449e2964/1:1/w_2030,h_2030,c_limit/Arn-Van-Gogh-Secondary-1.jpg"
-              alt="Arte moderno"
-            />
-          </div>
-          <div className="obra" >
-            <img
-              src="https://artprojectsforkids.org/wp-content/uploads/2024/05/Draw-a-Van-Gogh-Wheatfield.jpg"
-              alt="Obra repetida"
-            />
-          </div>
-          <div className="obra">
-            <img
-              src="https://cdn.britannica.com/78/69678-050-491A5ED8/Bedroom-oil-canvas-Vincent-van-Gogh-Art-1889.jpg"
-              alt="Fotografía 2"
-            />
-          </div>
-          <div className="obra">
-            <img
-              src="https://files.ocula.com/ri/94/9428b9b7-b463-48f1-804e-089fe21ebc9d/1510/850/vincent-van-gogh-contemporary-artist.jpg"
-              alt="Arte 2"
-            />
-          </div>
+          {imagenPublicaciones.length === 0 ? (
+                  <p>Aún no hay publicaciones.</p>
+              ) : (
+                  imagenPublicaciones.map((imgPublicaciones) => (
+                      <div className="obra" key={imgPublicaciones.id_publicacion}> 
+                          <img
+                              src={`${imgPublicaciones.imagen}`}
+                              alt="Publicación del usuario"
+                              onClick={() => {
+                                console.log("Clic detectado, ID de la obra:", imgPublicaciones.id_publicacion);
+                                setIdPostSeleccionado(imgPublicaciones.id_publicacion);
+                              }}
+                          />
+                      </div>
+                  ))
+          )}
         </section>
       </main>
+
+      {idPostSeleccionado && (
+        <ArtworkModal 
+          // 1. Pasamos TODA la lista (para saber cuál es anterior/siguiente)
+          listaPublicaciones={imagenPublicaciones} 
+          
+          // 2. Pasamos el ID donde se hizo clic (para saber dónde empezar)
+          initialId={idPostSeleccionado} 
+          
+          onClose={() => setIdPostSeleccionado(null)} 
+        />
+      )}
     </div>
   );
 };

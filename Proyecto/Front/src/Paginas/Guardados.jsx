@@ -1,16 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./CSS/Guardados.css";
+import axios from "axios";
 
 export function Guardados() {
-  // 🔹 Ejemplo de imágenes guardadas (puedes reemplazar por datos del backend después)
-  const [guardados] = useState([
-    { id: 1, img: "https://www.ttamayo.com/wp-content/uploads/2020/07/starry_night_full-1024x811.jpg", titulo: "La noche estrellada" },
-    { id: 2, img: "https://images.unsplash.com/photo-1519681393784-d120267933ba", titulo: "Reflejos urbanos" },
-    { id: 3, img: "https://arthive.com/res/media/img/oy1000/work/3ff/299075.webp", titulo: "El Arte de vivir" },
-    { id: 4, img: "https://www.ttamayo.com/wp-content/uploads/2020/07/leonardo_da_vinci_-_mona_lisa_louvre_paris.jpg", titulo: "La Mona Lisa" },
-    { id: 5, img: "https://www.ttamayo.com/wp-content/uploads/2020/07/825px-the_scream_by_edvard_munch_1893_-_nasjonalgalleriet.png.webp", titulo: "El Grito" },
-    { id: 6, img: "https://www.ttamayo.com/wp-content/uploads/2020/07/1021px-the_kiss_-_gustav_klimt_-_google_cultural_institute.jpg", titulo: "El Beso" },
-  ]);
+  const [guardados, setGuardados] = useState([]);
+  const [cargando, setCargando] = useState(true);
+
+  const userID = localStorage.getItem("userID");
+
+  useEffect(() => {
+    const fetchGuardados = async () => {
+      try {
+        const resp = await axios.get(`http://localhost:3001/guardados/${userID}`);
+        setGuardados(resp.data);
+        setCargando(false);
+      } catch (err) {
+        console.log(err);
+        setCargando(false);
+      }
+    };
+
+    fetchGuardados();
+  }, [userID]);
+
+  if (cargando) {
+    return <div className="guardados-container"><p>Cargando...</p></div>;
+  }
 
   return (
     <div className="guardados-container">
@@ -28,10 +43,13 @@ export function Guardados() {
       ) : (
         <div className="galeria-guardados">
           {guardados.map((obra) => (
-            <div key={obra.id} className="card-obra">
-              <img src={obra.img} alt={obra.titulo} className="img-obra" />
+            <div key={obra.id_guardado} className="card-obra">
+              <img src={obra.imagenPost} alt={obra.titulo} className="img-obra" />
               <div className="overlay">
-                <p className="titulo-obra">{obra.titulo}</p>
+                <p className="titulo-obra">
+                  {obra.titulo} <br />
+                  <span className="autor-obra">por {obra.nombreAutor}</span>
+                </p>
               </div>
             </div>
           ))}

@@ -151,7 +151,12 @@
   margin-left: 5px;
   border: 1px solid var(--footer-vinito, #5f1a1f);
   background-color: var(--letras-claras, #fdfaf0);
+  color: #2b2b2b;
   visibility: visible;
+}
+
+.navbar-perfil .search-input::placeholder {
+  color: #a38b71;
 }
 
 .navbar-perfil .search-input:focus {
@@ -163,28 +168,31 @@
 .navbar-perfil .search-modal {
   /* Estilo Oculto */
   opacity: 0;
-  transform: translateY(10px) scale(0.95);
+  transform: translateY(8px) scale(0.96);
   visibility: hidden;
-  transition: all 0.2s ease-out;
+  transition: all 0.18s ease-out;
 
   /* Posicionamiento (debajo del contenedor de búsqueda) */
   position: absolute;
-  top: 100%; /* Justo debajo del navbar */
-  /* Se alinea a la derecha del input (200px) + el icono (50px) */
+  top: 100%;
   right: 0; 
   margin-top: 10px;
 
   /* Estilo del modal */
   background-color: var(--letras-claras, #fdfaf0);
   border: 1px solid var(--footer-vinito, #5f1a1f);
-  border-radius: 8px;
-  padding: 10px;
+  border-radius: 12px;
+  padding: 10px 10px 8px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1100;
   width: 150px;
+  min-width: 260px;
+  max-width: 320px;
+  max-height: 380px;
+  overflow-y: auto;
 }
 
 .navbar-perfil .search-modal.active {
@@ -195,32 +203,137 @@
 }
 
 /* Estilo de los botones dentro del modal */
+.navbar-perfil .search-filters {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
 .navbar-perfil .modal-btn {
   font-family: 'Cinzel', sans-serif;
   font-size: 16px;
   font-weight: bold;
   color: var(--color-vinito, #7a3234);
   background-color: transparent;
-  border: none;
+  border: 1px solid rgba(122, 50, 52, 0.3);
   padding: 8px 16px;
   border-radius: 6px;
   cursor: pointer;
-  text-align: left;
-  transition: background-color 0.2s;
+  text-align: center;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s, border-color 0.2s;
+  flex: 1;
   width: 100%;
 }
 
 .navbar-perfil .modal-btn:hover {
-  background-color: rgba(95, 26, 31, 0.1);
+  background-color: rgba(122, 50, 52, 0.06);
+  box-shadow: 0 0 0 1px rgba(122, 50, 52, 0.1);
 }
 
 .navbar-perfil .modal-btn.active-filter {
   background-color: var(--color-vinito, #7a3234);
   color: var(--letras-claras, #fdfaf0);
+  border-color: var(--color-vinito, #7a3234);
+}
+
+/* --- Resultados de búsqueda --- */
+.navbar-perfil .search-results {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding-top: 6px;
+}
+
+/* Bloques por sección (Artistas / Obras) */
+.navbar-perfil .search-section {
+  margin-bottom: 8px;
+}
+
+.navbar-perfil .search-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9b7a5a;
+  margin: 4px 2px 4px;
+}
+
+/* Lista de resultados */
+.navbar-perfil .search-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navbar-perfil .search-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.15s, transform 0.1s;
+}
+
+.navbar-perfil .search-item:hover {
+  background-color: rgba(172, 142, 111, 0.18);
+  transform: translateY(-1px);
+}
+
+/* Imagen de artista (avatar redondo) */
+.navbar-perfil .search-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Imagen de obra (miniatura cuadrada) */
+.navbar-perfil .search-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+/* Texto principal y secundario */
+.navbar-perfil .search-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* para que el texto pueda hacer ellipsis */
+}
+
+.navbar-perfil .search-main {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2b2b2b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navbar-perfil .search-sub {
+  font-size: 11px;
+  color: #7b6a58;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mensajes de estado */
+.navbar-perfil .search-hint {
+  font-size: 11px;
+  color: #8b7b69;
+  margin: 4px 2px;
+}
+
+.navbar-perfil .search-error {
+  font-size: 11px;
+  color: var(--color-vinito, #7a3234);
+  margin: 4px 2px;
 }
 
 /* --- Estilos del Modal de Perfil --- */
-
 /* 1. Contenedor para posicionar el modal */
 .navbar-perfil .profile-container {
   position: relative;

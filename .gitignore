@@ -1,0 +1,5 @@
+# Ignora el contenido de la carpeta uploads
+Proyecto/Server/uploads/*
+
+# Para que solo tome en cuenta la carpeta
+!Proyecto/Server/uploads/.gitkeep

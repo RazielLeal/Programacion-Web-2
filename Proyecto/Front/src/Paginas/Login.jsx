@@ -27,6 +27,7 @@ function Login() {
       if (respServer.data.msg === "SI") {
         // Guardar la sesión del usuario
         localStorage.setItem("user", respServer.data.user);
+        localStorage.setItem("userID", respServer.data.id); 
 
         // Redirigir
         redirect("/Home");

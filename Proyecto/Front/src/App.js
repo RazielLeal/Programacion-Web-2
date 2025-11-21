@@ -20,7 +20,9 @@ function App() {
         <Route path='/Landing' element={<Landing />}></Route>'
         <Route path="/Login" element={<Login />}></Route>        
         <Route path="/PerfilArtista" element={<PerfilArtista />}></Route>
+        <Route path="/PerfilArtista/:idUsuario" element={<PerfilArtista />} />
         <Route path="/PerfilUsuario" element={<PerfilUsuario />}></Route>
+        <Route path="/PerfilUsuario/:idUsuario" element={<PerfilUsuario />}></Route>
         <Route path='/PublicarObra' element={<PublicarObra />}></Route>
         <Route path="/Register" element={<Register />}></Route>
       </Routes>

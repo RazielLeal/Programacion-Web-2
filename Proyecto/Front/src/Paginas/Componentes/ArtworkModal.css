@@ -1,254 +1,338 @@
-/* Fondo oscuro del modal */
+/* ArtworkModal.css */
+
 :root {
-    --fondo-home:#fdfaf0;
+    --fondo-home: #fdfaf0;
     --title-color: hsl(0, 0%, 20%);
-    --letras-claras:#fdfaf0;
+    --letras-claras: #fdfaf0;
     --fondo-claro: #c8a888;
-    --color-vinito:#7a3234;
-    --footer-vinito:#5f1a1f;
-    --color-tacha:#9c601d;
-    --fondo-img: #00000025;
-    --fondo-modal-info:#d1b266;
-    --colores-prueba:aqua;
+    --color-vinito: #7a3234;
+    --footer-vinito: #5f1a1f;
+    --color-tacha: #9c601d; /* Para el botón de cerrar */
+    --fondo-img: #00000025; /* Fondo de la imagen de arte */
+    --fondo-modal-info: #d1b266; /* Fondo de la barra lateral de información */
+    --color-texto-principal: #333;
+    --color-texto-secundario: #666;
+    --color-texto-claro: #aaa;
 }
 
-.main-home .modal-backdrop {
+/* ------------------------------------- */
+/* 1. FONDO GENERAL Y CONTENEDOR MODAL */
+/* ------------------------------------- */
+
+.modal-art-backdrop {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-  
-  /* --- CAMBIA ESTA LÍNEA --- */
-    background-color: rgba(0, 0, 0, 0.7);  
+    background-color: rgba(0, 0, 0, 0.692);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 2000;
+    backdrop-filter: blur(5px); /* Efecto de desenfoque en el fondo */
 }
 
-/* Contenedor principal (caja blanca) */
-.main-home .modal-content {
-  display: flex;
-  flex-direction: row; /* Pone los hijos uno al lado del otro */
-  
-  width: 80%;
-  max-width: 100%;
-  height: 80vh; /* Alto del modal */
-    
-  padding: 20px;
-  padding-top: 50px; /* Espacio para el botón de cerrar */
-  position: relative;
-  gap: 20px; /* Espacio entre el arte y la info */
+/* Contenedor principal del modal (la "caja" que tiene la imagen y la info) */
+.modal-art-content {
+    display: flex;
+    flex-direction: row; /* Imagen a la izquierda, info a la derecha */
+    background-color: white; /* Color de fondo del modal */
+    width: 90%; /* Ancho del modal */
+    max-width: 1200px; /* Ancho máximo para pantallas grandes */
+    height: 90vh; /* Alto del modal */
+    max-height: 700px; /* Alto máximo */
+    border-radius: 20px;
+    padding: 0; /* Aseguramos que no haya padding global aquí */
+    position: relative;
+    overflow: hidden; /* Importante para que los bordes redondeados funcionen bien */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
+/* ------------------------------------- */
+/* 2. BOTÓN DE CERRAR */
+/* ------------------------------------- */
+
+/* Posición global en la esquina superior derecha del fondo */
 .modal-close-btn {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
+    top: 20px; /* Ajustado para estar más afuera */
+    right: 20px; /* Ajustado para estar más afuera */
+    background: rgba(255, 255, 255, 0.2); /* Fondo semitransparente para que no choque */
     border: none;
-    font-size: 8rem; 
-    filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.89));
-    color: var(--color-tacha);
+    border-radius: 50%;
+    width: 45px; /* Tamaño del botón */
+    height: 45px;
+    font-size: 2.2rem; /* Tamaño de la 'X' */
+    color: var(--letras-claras); /* Color de la 'X' */
     cursor: pointer;
-    z-index: 10;
-    
-    /* (Opcional) Ajusta el line-height para centrarlo mejor */
-    line-height: 1;
+    z-index: 2001; /* Más alto que el z-index del backdrop */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0; /* Centra la X */
+    transition: all 0.2s ease-in-out;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.6)); /* Sombra para que se vea mejor */
 }
 
 .modal-close-btn:hover {
-  color: #000;
+    background: var(--color-tacha); /* Cambia de color al pasar el ratón */
+    transform: scale(1.1);
 }
 
+/* ------------------------------------- */
+/* 3. CONTENEDOR DE LA IMAGEN (IZQUIERDA) */
+/* ------------------------------------- */
 
-/* 1. Contenedor del Arte (Izquierda) */
 .modal-art-container {
-  flex: 3; /* Ocupa 3/4 del espacio (puedes ajustar esto) */
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--fondo-img); /* Color de fondo sutil */
-  overflow: hidden;
-  border-radius: 20px;
-  
-  /* Flexbox (el padre) hará que esto tenga 100% de alto */
+    flex: 2; /* Más grande que la info (2/3 del espacio) */
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--fondo-img); /* Fondo sutil para la imagen */
+    overflow: hidden; /* Asegura que la imagen no se desborde */
+    border-top-left-radius: 20px; /* Redondeamos solo la esquina izquierda */
+    border-bottom-left-radius: 20px;
 }
 
-/* La imagen de arte */
 .modal-artwork-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* Para que la imagen se vea completa */
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* La imagen se ajusta sin recortarse */
+    background-color: #000; /* Fondo negro para que la imagen resalte */
 }
 
-/* Flechas de navegación del carrusel */
+/* Flechas de navegación (carrusel) */
 .modal-nav-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: rgba(0, 0, 0, 0);
-  color: white;
-  border: none;
-  font-size: 2rem;
-  cursor: pointer;
-  padding: 10px 15px;
-  z-index: 5;
-  transition: background-color 0.2s;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.4); /* Fondo semi-transparente para las flechas */
+    color: white;
+    border: none;
+    font-size: 2.5rem; /* Tamaño de las flechas */
+    cursor: pointer;
+    padding: 15px 20px;
+    z-index: 5;
+    transition: background-color 0.3s, transform 0.2s;
+    border-radius: 8px; /* Bordes ligeramente redondeados */
 }
 .modal-nav-arrow:hover {
-  background-color: rgba(255, 255, 255, 0.24);
+    background-color: rgba(0, 0, 0, 0.7);
+    transform: translateY(-50%) scale(1.1); /* Efecto al pasar el ratón */
 }
 .modal-nav-arrow.left { 
-  left: 10px; 
-  border-radius: 4px 0 0 4px;
+    left: 20px; 
 }
 .modal-nav-arrow.right { 
-  right: 10px; 
-  border-radius: 0 4px 4px 0;
+    right: 20px; 
 }
 
 
-/* 2. Contenedor de la Info (Derecha) */
-.main-home .modal-info-container {
-  flex: 1;
-  background-color: var(--fondo-modal-info);
-  border-radius: 15px;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  overflow: hidden; 
-  min-height: 0;
+/* ------------------------------------- */
+/* 4. CONTENEDOR DE LA INFO (DERECHA) */
+/* ------------------------------------- */
+
+.modal-info-container {
+    flex: 1; /* Ocupa 1/3 del espacio */
+    background-color: var(--fondo-modal-info);
+    border-top-right-radius: 20px; /* Redondeamos solo la esquina derecha */
+    border-bottom-right-radius: 20px;
+    padding: 25px; /* Ajuste del padding */
+    display: flex;
+    flex-direction: column;
+    gap: 18px; /* Espacio entre las secciones de información */
+    overflow-y: hidden; /* Quitamos el overflow aquí para que lo controle la lista de comentarios */
+    color: var(--color-texto-principal);
 }
 
-/* Estilo para todas las partes (opcional) */
-.main-home .modal-info-container .info-part {
-  width: 100%;
-  flex-shrink: 1; 
+/* Estilo para todas las partes de información */
+.info-part {
+    width: 100%;
+    /* flex-shrink: 0; */ /* No encoger por defecto */
 }
 
-/* --- PREFIJO .modal-info-container AÑADIDO A TODO --- */
-
-.main-home .modal-info-container .artist-info {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+/* Sección de información del artista */
+.artist-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px; /* Espacio entre el avatar y el nombre */
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.15); /* Separador */
 }
 
-.main-home .modal-info-container .artist-avatar-small {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  object-fit: cover;
+.artist-avatar-small {
+    width: 55px; /* Tamaño del avatar */
+    height: 55px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white; /* Borde blanco alrededor del avatar */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-.main-home .modal-info-container .artist-name-small {
-  font-family: 'Cinzel', serif;
-  font-weight: bold;
-  font-size: 1.2rem;
+.artist-name-small {
+    font-family: 'Cinzel', serif;
+    font-weight: bold;
+    font-size: 1.3rem;
+    color: var(--title-color);
 }
 
-/* --- PARTE 2: Título --- */
-.main-home .modal-info-container .artwork-title-container {
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+/* Sección del título y descripción de la obra */
+.artwork-title-container {
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.15); /* Separador */
 }
 
-.main-home .modal-info-container .artwork-title-modal {
-  font-family: 'Cinzel', serif;
-  font-size: 1.4rem;
-  font-weight: bold;
-  margin: 0;
+.artwork-title-modal {
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem; /* Tamaño del título */
+    font-weight: bold;
+    margin: 0; /* Quitamos márgenes por defecto */
+    line-height: 1.2;
+    color: var(--title-color);
+}
+.artwork-title-container p { /* Para la fecha u descripción */
+    font-size: 0.9rem;
+    color: var(--color-texto-secundario);
+    margin-top: 5px;
 }
 
-/* --- PARTE 3: Acciones --- */
-.main-home .modal-info-container .artwork-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+/* Sección de acciones (likes, guardar) */
+.artwork-actions {
+    display: flex;
+    justify-content: space-between; /* Botones a los extremos */
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.15); /* Separador */
 }
 
-.main-home .modal-info-container .like-section {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.like-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.main-home .modal-info-container .like-count {
-  font-size: 1.1rem;
-  font-family: 'Cinzel', serif;
+.action-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    width: 35px; /* Tamaño de los botones de acción */
+    height: 35px;
+    flex-shrink: 0; 
+    font-size: 1.8rem; /* Tamaño de los emojis */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease-in-out;
+}
+.action-btn:hover {
+    transform: scale(1.15);
 }
 
-/* --- PARTE 4: Lista de Comentarios --- */
-.main-home .modal-info-container .comments-list {
-  flex-grow: 1; /* <-- Ahora SÍ funcionará */
-  overflow-y: auto; /* <-- Ahora SÍ funcionará */
-  min-height: 0; 
-  background-color: rgba(0,0,0,0.03);
-  border-radius: 8px;
-  padding: 10px;
+.like-count {
+    font-size: 1.2rem;
+    font-family: 'Cinzel', serif;
+    color: var(--color-texto-principal);
 }
-.main-home .modal-info-container .comment-item {
-  font-family: Arial, sans-serif;
-  font-size: 0.9rem;
-  margin: 0 0 8px 0;
+
+
+/* Sección de lista de comentarios */
+.comments-list {
+    flex-grow: 1; /* Esto es clave: hace que ocupe todo el espacio restante */
+    overflow-y: auto; /* Permite hacer scroll solo en esta sección si hay muchos comentarios */
+    background-color: rgba(255, 255, 255, 0.4); /* Fondo claro para comentarios */
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px; /* Espacio antes del input */
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.1); /* Sombra interna sutil */
+    color: var(--color-texto-principal);
 }
-.main-home .modal-info-container .comment-item.none {
+
+.comment-item {
+    font-family: Arial, sans-serif;
+    font-size: 0.95rem;
+    margin: 0 0 10px 0;
+    line-height: 1.4;
+}
+.comment-item strong {
+    color: var(--title-color);
+}
+.comment-item.none {
+    font-style: italic;
+    color: var(--color-texto-secundario);
+    text-align: center;
+    padding: 20px;
+}
+
+
+/* Sección del input de comentario */
+.comment-input-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 10px; /* Un poco de padding arriba */
+}
+
+.comment-input {
+    flex-grow: 1;
+    border: 1px solid var(--color-texto-claro);
+    border-radius: 25px; /* Más redondeado */
+    padding: 12px 18px; /* Más padding */
+    font-family: Arial, sans-serif;
+    font-size: 1rem;
+    background-color: white;
+}
+.comment-input:focus {
+    outline: 2px solid var(--color-vinito);
+    border-color: var(--color-vinito);
+    box-shadow: 0 0 0 3px rgba(122, 50, 52, 0.2);
+}
+
+.send-btn {
+    background-color: var(--color-vinito);
+    color: white;
+    border-radius: 50%; /* Botón de enviar redondo */
+    width: 45px;
+    height: 45px;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, transform 0.2s;
+}
+.send-btn:hover {
+    background-color: var(--footer-vinito);
+    transform: scale(1.05);
+}
+
+/* ------------------------------------- */
+/* 5. Botones de like y guardar */
+/* ------------------------------------- */
+
+/* Íconos de like y guardado dentro de los botones */
+.action-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+/* Si los quieres un poquito más pequeños, baja el tamaño del botón */
+.action-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+}
+
+.save-feedback {
+  font-size: 0.8rem;
   font-style: italic;
-  color: #777;
-}
-
-/* --- PARTE 5: Input de Comentario --- */
-.main-home .modal-info-container .comment-input-box {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.main-home .modal-info-container .comment-input {
-  flex-grow: 1;
-  border: 1px solid #ccc;
-  border-radius: 15px;
-  padding: 10px 14px;
-  font-family: Arial, sans-serif;
-}
-.main-home .modal-info-container .comment-input:focus {
-  outline: 1px solid var(--color-vinito, #7a3234);
-}
-
-/* --- Estilo para los BOTONES con Imágenes --- */
-.main-home .modal-info-container .action-btn {
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  flex-shrink: 0; 
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* CSS para la IMAGEN DENTRO del botón */
-.main-home .modal-info-container .action-btn img {
-  width: 100%; 
-  height: 100%;
-  object-fit: contain; 
-  transition: transform 0.2s;
-}
-
-.main-home .modal-info-container .action-btn:hover img {
-  transform: scale(1.1);
-}
-.main-home .modal-info-container .action-btn:hover span { 
-  transform: scale(1.1);
+  color: #96212e;
+  margin-top: 4px;
+  text-align: right;
+  opacity: 0.9;
 }
