@@ -231,7 +231,7 @@ export const PerfilUsuario = () => {
                 <div className="perfilStats">
                   <div className="perfilDato">
                     <img src={Apl} alt="Aplausos" />
-                    <p>115.5 M</p>
+                    <p>{userInfo.totalLikes || 0}</p>
                   </div>
                   <div className="perfilDato">
                     <img src={Seg} alt="Seguidores" />

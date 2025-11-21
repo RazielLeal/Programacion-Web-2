@@ -16,6 +16,13 @@ export function NavbarPerfil() {
 
   const location = useLocation();
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [artistResults, setArtistResults] = useState([]);
+  const [artworkResults, setArtworkResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState("");
+
+
   // 2. CREA LOS REFS
   const searchRef = useRef(null);
   const profileRef = useRef(null);
@@ -41,6 +48,11 @@ export function NavbarPerfil() {
   const [userInfo, setUserInfo] = useState([]); 
   const userID = localStorage.getItem("userID");  
  
+  //BUSQUEDA  
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
   const toggleSearch = () => {
     // setIsSearchOpen(!isSearchOpen);
     // setIsProfileOpen(false);
@@ -67,6 +79,57 @@ export function NavbarPerfil() {
     setIsProfileOpen(!isProfileOpen);
     setIsSearchOpen(false);
   };
+  
+  useEffect(() => {
+    // si el buscador está cerrado o no hay texto, reseteamos resultados
+    if (!isSearchOpen || searchTerm.trim() === "") {
+      setArtistResults([]);
+      setArtworkResults([]);
+      setSearchError("");
+      return;
+    }
+
+    const fetchSearch = async () => {
+      try {
+        setIsSearching(true);
+        setSearchError("");
+
+        const resp = await axios.get("http://localhost:3001/search", {
+          params: {
+            q: searchTerm,
+            filter: activeFilter ? activeFilter : "all"
+          }
+        });
+
+        setArtistResults(resp.data.artists || []);
+        setArtworkResults(resp.data.obras || []);
+      } catch (error) {
+        console.error("Error buscando:", error);
+        setSearchError("Error al buscar, intenta de nuevo.");
+        setArtistResults([]);
+        setArtworkResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    const debounceTimer = setTimeout(fetchSearch, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchTerm, activeFilter, isSearchOpen]);
+
+  const goToArtistPublicProfile = (idArtista) => {
+    navigate(`/PerfilArtista/${idArtista}`);
+    setIsSearchOpen(false);
+    setSearchTerm("");
+  };
+
+  const goToArtworkOwner = (idArtista) => {
+    navigate(`/PerfilArtista/${idArtista}`);
+    setIsSearchOpen(false);
+    setSearchTerm("");
+  };
+
 
   // 3. AÑADE EL useEffect PARA DETECTAR CLICS FUERA
   useEffect(() => {
@@ -91,7 +154,7 @@ export function NavbarPerfil() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []); // El array vacío [] significa que esto solo se ejecuta al montar y desmontar
+  }, []);
   
     const getUser = async()=> {
 
@@ -131,20 +194,96 @@ export function NavbarPerfil() {
               type="text"
               placeholder="Buscar..."
               className={isSearchOpen ? "search-input active" : "search-input"}
+              value={searchTerm}
+              onChange={handleSearchChange}
             />
             <div className={isSearchOpen ? "search-modal active" : "search-modal"}>
-              <button
-                className={`modal-btn ${activeFilter === 'artistas' ? 'active-filter' : ''}`}
-                onClick={() => handleFilterClick('artistas')}
-              >
-                Artistas
-              </button>
-              <button
-                className={`modal-btn ${activeFilter === 'obras' ? 'active-filter' : ''}`}
-                onClick={() => handleFilterClick('obras')}
-              >
-                Obras
-              </button>
+              {/* Filtros */}
+              <div className="search-filters">
+                <button
+                  className={`modal-btn ${activeFilter === 'artistas' ? 'active-filter' : ''}`}
+                  onClick={() => handleFilterClick('artistas')}
+                >
+                  Artistas
+                </button>
+                <button
+                  className={`modal-btn ${activeFilter === 'obras' ? 'active-filter' : ''}`}
+                  onClick={() => handleFilterClick('obras')}
+                >
+                  Obras
+                </button>
+              </div>
+                
+              {/* Resultados */}
+              <div className="search-results">
+                {isSearching && <p className="search-hint">Buscando...</p>}
+                
+                {searchError && <p className="search-error">{searchError}</p>}
+                
+                {!isSearching && !searchError && searchTerm.trim() !== "" && 
+                  artistResults.length === 0 && 
+                  artworkResults.length === 0 && (
+                    <p className="search-hint">No se encontraron resultados.</p>
+                )}
+            
+                {/* Artistas */}
+                {(activeFilter === "artistas" || !activeFilter || activeFilter === "all") &&
+                  artistResults.length > 0 && (
+                    <div className="search-section">
+                      <h4 className="search-section-title">Artistas</h4>
+                      <ul className="search-list">
+                        {artistResults.map((a) => (
+                          <li
+                            key={a.id}
+                            className="search-item"
+                            onClick={() => goToArtistPublicProfile(a.id)}
+                          >
+                            <img
+                              src={"data:image/png;base64," + a.imagen}
+                              alt={a.nombre}
+                              className="search-avatar"
+                            />
+                            <div className="search-text">
+                              <span className="search-main">{a.nombre}</span>
+                              {a.descripcion && (
+                                <span className="search-sub">{a.descripcion}</span>
+                              )}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                )}
+            
+                {/* Obras */}
+                {(activeFilter === "obras" || !activeFilter || activeFilter === "all") &&
+                  artworkResults.length > 0 && (
+                    <div className="search-section">
+                      <h4 className="search-section-title">Obras</h4>
+                      <ul className="search-list">
+                        {artworkResults.map((o) => (
+                          <li
+                            key={o.id_publicacion}
+                            className="search-item"
+                            onClick={() => goToArtworkOwner(o.idUsuario)}
+                          >
+                            <img
+                              src={o.imagenPost}
+                              alt={o.titulo}
+                              className="search-thumb"
+                            />
+                            <div className="search-text">
+                              <span className="search-main">{o.titulo}</span>
+                              <span className="search-sub">
+                                {o.nombreUsuario}
+                              </span>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                )}
+              </div>
             </div>
           </div>
 

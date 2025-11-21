@@ -24,7 +24,7 @@ const db = mysql2.createConnection(
     {
         host: "localhost",
         user: "root",
-        password: "1234",
+        password: "",
         database: "DB_PW",
         port: 3306
     }
@@ -145,29 +145,40 @@ app.get("/user/:id",
             u.Imagen, 
             u.descripcion,
             /* Subconsulta para contar SEGUIDORES (Gente que me admira a mí) */
-            (SELECT COUNT(*) FROM admirador WHERE id_admirado = u.id) AS totalSeguidores
+            (SELECT COUNT(*) 
+            FROM admirador 
+            WHERE id_admirado = u.id) AS totalSeguidores,
+
+            (
+             SELECT COUNT(*)
+             FROM publicacion p
+             INNER JOIN like_publicacion lp
+                ON lp.id_publicacion = p.id_publicacion
+             WHERE p.id_usuario = u.id
+            ) AS totalLikes
+
         FROM usuario u 
         WHERE u.id = ?
         `;
 
         db.query(sql, 
-        req.params.id,
+        [req.params.id],
         (er, result) => { 
-        if (er) {
-            resp.json({
-            msg: "Err BD"
-            })
-            console.log(er); 
-        } else if (result.length > 0) {
-            resp.json(result[0]);
-        } else {
-            resp.json({
-            msg: "No result"
-            })
-        }
-        })
+            if (er) {
+                resp.json({
+                msg: "Err BD"
+                })
+                console.log(er); 
+            } else if (result.length > 0) {
+                resp.json(result[0]);
+            } else {
+                resp.json({
+                    msg: "No result"
+                })
+            }
+        });
     }
-)
+);
 
 //Endpoint para modificar la informacion del usuario 
 app.put(
@@ -176,43 +187,60 @@ app.put(
     (req, resp) => {
         const id = req.params.id
         const {name, email, password, description} = req.body;
-        
-        //declaramos un query para mantener un mejor control de los campos y solo actualizar en los que haya cambios
-        let sqlQuery = "UPDATE usuario SET descripcion = ?"; 
-        let params = [name, email, description];
+
+        const updates = [];
+        const params = [];
+
+        if (typeof description !== "undefined") {
+            updates.push("descripcion = ?");
+            params.push(description);
+        }
         
         //Falta verificar si los campos de nombres, correo, descripcion estan vacios que no se modifiquen
         if(name && name.trim() !== ""){
-            sqlQuery+= " Nombre = ?"; 
-            params.push(name); 
+            updates.push("Nombre = ?");
+            params.push(name.trim());
         }
 
         if(email && email.trim() !== ""){
-            sqlQuery+= ", Correo = ?"; 
-            params.push(email); 
+            updates.push("Correo = ?");
+            params.push(email.trim());
         }
 
         //validamos si la contraseña es nueva 
         if(password && password.trim() !== ""){
-            sqlQuery+= ", Contra = ?"; 
-            params.push(password); 
+            updates.push("Contra = ?");
+            params.push(password.trim()); 
         }
 
         if(req.file){
             const image = req.file.buffer.toString("base64");  
-            sqlQuery += ", Imagen = ?"; 
+            updates.push("Imagen = ?");
             params.push(image); 
         }
 
-        sqlQuery += " WHERE id = ?"; 
-        params.push(id); 
+        // Si no hay nada que actualizar:
+        if (updates.length === 0) {
+            return resp.json({
+                msg: "Sin cambios",
+            });
+        }
+
+        const sqlQuery = `UPDATE usuario SET ${updates.join(", ")} WHERE id = ?`;
+        params.push(id);
+
+        console.log("SQL UPDATE:", sqlQuery);
+        console.log("Params:", params);
 
         db.query(sqlQuery, params,
             (err, result) =>{
                 if(err){
-                    resp.json({
-                        msg: "Error BD"
-                    })
+                    console.log("ERROR BD UPDATE USER ===>");
+                    console.log(err);
+                    return resp.json({
+                        msg: "Error BD",
+                        error: err.sqlMessage
+                    });
                 } else {
                     resp.json({
                         msg: "Usuario modificado"
@@ -268,6 +296,9 @@ app.post(
         const {titlePost} = req.body;
 
         if(!req.file) return resp.json({msg: "Error: No hay imagen"});
+        if (!titlePost || titlePost.trim() === "") {
+            return resp.json({ msg: "Error: Falta título" });
+        }
         const id = req.params.id; 
         const imageURL = `http://localhost:3001/uploads/${req.file.filename}`;
 
@@ -316,43 +347,68 @@ app.get(
 );
 
 //Endpoint para obtener los detalles de las publicaciones propias del usuario
-app.get(
-    "/getPublicaciones/:id", //se manda como parametro el id del usuario que inicio sesion 
-    (req, resp) => {
-        const id = req.params.id; 
+app.get("/getPublicaciones/:id", (req, resp) => {
+    const idPublicacion = req.params.id; 
 
-        const sqlQuery = `
-            SELECT
-                p.titulo, 
-                p.fechaPublicacion,
-                p.imagen AS imagenPost, 
-                u.Nombre AS nombreUsuario, 
-                u.Imagen AS imagenUsuario
-            FROM publicacion p 
-            INNER JOIN usuario u ON p.id_usuario = u.id
-            WHERE p.id_publicacion = ?
+    const sqlDetalle = `
+        SELECT
+            p.id_publicacion,
+            p.titulo, 
+            p.fechaPublicacion,
+            p.imagen AS imagenPost, 
+            u.Nombre AS nombreUsuario, 
+            u.Imagen AS imagenUsuario
+        FROM publicacion p 
+        INNER JOIN usuario u ON p.id_usuario = u.id
+        WHERE p.id_publicacion = ?
+    `;
+
+    db.query(sqlDetalle, [idPublicacion], (err, result) => {
+        if (err) {
+            console.log(err);
+            return resp.json({ msg: "Err BD" });
+        }
+
+        if (result.length === 0) {
+            return resp.json({ msg: "No se encontraron los datos" });
+        }
+
+        const detalle = result[0];
+
+        const sqlLikes = "SELECT COUNT(*) AS total FROM like_publicacion WHERE id_publicacion = ?";
+        const sqlComments = `
+            SELECT 
+                c.id_comentario,
+                c.texto,
+                c.fechaComentario,
+                u.Nombre AS nombreUsuario
+            FROM comentario_publicacion c
+            INNER JOIN usuario u ON c.id_usuario = u.id
+            WHERE c.id_publicacion = ?
+            ORDER BY c.fechaComentario ASC
         `;
 
-        db.query(sqlQuery, [id], (err, result)=>{
-            if(err){
-                return resp.json({
-                    msg: "Err BD"
-                });
+        db.query(sqlLikes, [idPublicacion], (errL, rowsLikes) => {
+            if (errL) {
+                console.log(errL);
+                return resp.json({ msg: "Err BD likes" });
             }
 
-            if(result.length>0){
-                resp.json(result[0]); 
-            } else {
+            db.query(sqlComments, [idPublicacion], (errC, rowsComments) => {
+                if (errC) {
+                    console.log(errC);
+                    return resp.json({ msg: "Err BD comments" });
+                }
+
                 resp.json({
-                    msg: "No se encontraron los datos por alguna extraña razon"
+                    ...detalle,
+                    likesCount: rowsLikes[0].total,
+                    comments: rowsComments
                 });
-            }
-        })
-
-
-    }
-
-)
+            });
+        });
+    });
+});
 
 //Endpoint para obtener todas las publicaciones con todos los usuarios que las hicieron, el feed o la galeria basicamente 
 app.get("/feed", (req, resp) =>{
@@ -436,4 +492,235 @@ app.post("/checkAdmiracion", (req, res) => {
         res.json({ isAdmirer: result.length > 0 }); 
     });
 });
+
+//Endpoint para los likes/deslikes de las obras
+app.post("/likePublicacion", (req, resp) => {
+    const { idUsuario, idPublicacion } = req.body;
+
+    const checkSql = "SELECT * FROM like_publicacion WHERE id_usuario = ? AND id_publicacion = ?";
+    db.query(checkSql, [idUsuario, idPublicacion], (err, result) => {
+        if (err) {
+            console.log(err);
+            return resp.json({ msg: "Err BD" });
+        }
+
+        if (result.length > 0) {
+            // ya tenía like → borrar
+            const deleteSql = "DELETE FROM like_publicacion WHERE id_usuario = ? AND id_publicacion = ?";
+            db.query(deleteSql, [idUsuario, idPublicacion], (err2) => {
+                if (err2) {
+                    console.log(err2);
+                    return resp.json({ msg: "Error al quitar like" });
+                }
+
+                // regresar nuevo total
+                const countSql = "SELECT COUNT(*) AS total FROM like_publicacion WHERE id_publicacion = ?";
+                db.query(countSql, [idPublicacion], (err3, rows) => {
+                    if (err3) return resp.json({ liked: false, likesCount: 0 });
+                    resp.json({
+                        liked: false,
+                        likesCount: rows[0].total
+                    });
+                });
+            });
+        } else {
+            // no tenía like → insertar
+            const insertSql = "INSERT INTO like_publicacion (id_usuario, id_publicacion) VALUES (?, ?)";
+            db.query(insertSql, [idUsuario, idPublicacion], (err2) => {
+                if (err2) {
+                    console.log(err2);
+                    return resp.json({ msg: "Error al dar like" });
+                }
+
+                const countSql = "SELECT COUNT(*) AS total FROM like_publicacion WHERE id_publicacion = ?";
+                db.query(countSql, [idPublicacion], (err3, rows) => {
+                    if (err3) return resp.json({ liked: true, likesCount: 1 });
+                    resp.json({
+                        liked: true,
+                        likesCount: rows[0].total
+                    });
+                });
+            });
+        }
+    });
+});
+
+//Endpoint para comentar en las publicaciones
+app.post("/comentarPublicacion", (req, resp) => {
+    const { idUsuario, idPublicacion, texto } = req.body;
+
+    if (!texto || texto.trim() === "") {
+        return resp.json({ msg: "Comentario vacío" });
+    }
+
+    const insertSql = `
+        INSERT INTO comentario_publicacion (id_usuario, id_publicacion, texto)
+        VALUES (?, ?, ?)
+    `;
+    db.query(insertSql, [idUsuario, idPublicacion, texto], (err, result) => {
+        if (err) {
+            console.log(err);
+            return resp.json({ msg: "Err BD" });
+        }
+
+        const selectSql = `
+            SELECT c.id_comentario, c.texto, c.fechaComentario, u.Nombre AS nombreUsuario
+            FROM comentario_publicacion c
+            INNER JOIN usuario u ON c.id_usuario = u.id
+            WHERE c.id_comentario = ?
+        `;
+        db.query(selectSql, [result.insertId], (err2, rows) => {
+            if (err2 || rows.length === 0) {
+                return resp.json({ msg: "Comentario guardado pero no se pudo recuperar" });
+            }
+            resp.json({
+                msg: "Comentario guardado",
+                comentario: rows[0]
+            });
+        });
+    });
+});
+
+//Endpoint guardar/desguardar obra
+app.post("/guardarPublicacion", (req, resp) => {
+    const { idUsuario, idPublicacion } = req.body;
+
+    const checkSql = "SELECT * FROM guardado_publicacion WHERE id_usuario = ? AND id_publicacion = ?";
+    db.query(checkSql, [idUsuario, idPublicacion], (err, result) => {
+        if (err) {
+            console.log(err);
+            return resp.json({ msg: "Err BD" });
+        }
+
+        if (result.length > 0) {
+            const deleteSql = "DELETE FROM guardado_publicacion WHERE id_usuario = ? AND id_publicacion = ?";
+            db.query(deleteSql, [idUsuario, idPublicacion], (err2) => {
+                if (err2) {
+                    console.log(err2);
+                    return resp.json({ msg: "Error al quitar de guardados" });
+                }
+                resp.json({ saved: false, msg: "Obra quitada de guardados" });
+            });
+        } else {
+            const insertSql = "INSERT INTO guardado_publicacion (id_usuario, id_publicacion) VALUES (?, ?)";
+            db.query(insertSql, [idUsuario, idPublicacion], (err2) => {
+                if (err2) {
+                    console.log(err2);
+                    return resp.json({ msg: "Error al guardar obra" });
+                }
+                resp.json({ saved: true, msg: "Obra guardada" });
+            });
+        }
+    });
+});
+
+//Endpoint ver obras guardadas
+app.get("/guardados/:idUsuario", (req, resp) => {
+    const { idUsuario } = req.params;
+
+    const sql = `
+        SELECT 
+            g.id_guardado,
+            p.id_publicacion,
+            p.titulo,
+            p.imagen AS imagenPost,
+            u.Nombre AS nombreAutor
+        FROM guardado_publicacion g
+        INNER JOIN publicacion p ON g.id_publicacion = p.id_publicacion
+        INNER JOIN usuario u ON p.id_usuario = u.id
+        WHERE g.id_usuario = ?
+        ORDER BY g.fechaGuardado DESC
+    `;
+
+    db.query(sql, [idUsuario], (err, result) => {
+        if (err) {
+            console.log(err);
+            return resp.json({ msg: "Err BD" });
+        }
+        resp.json(result);
+    });
+});
+
+//Endpoint para busqueda
+app.get("/search", (req, resp) => {
+    const { q, filter } = req.query;
+
+    const searchText = q ? q.trim() : "";
+
+    if (!searchText) {
+        return resp.json({
+            artists: [],
+            obras: []
+        });
+    }
+
+    const likeParam = `%${searchText}%`;
+
+    const sqlArtists = `
+      SELECT 
+        u.id,
+        u.Nombre AS nombre,
+        u.Imagen AS imagen,
+        u.descripcion
+      FROM usuario u
+      WHERE u.Nombre LIKE ? OR u.Correo LIKE ?
+      ORDER BY u.Nombre ASC
+    `;
+    const sqlObras = `
+      SELECT 
+        p.id_publicacion,
+        p.titulo,
+        p.imagen AS imagenPost,
+        u.id AS idUsuario,
+        u.Nombre AS nombreUsuario,
+        u.Imagen AS imagenUsuario
+      FROM publicacion p
+      INNER JOIN usuario u ON p.id_usuario = u.id
+      WHERE p.titulo LIKE ?
+      ORDER BY p.fechaPublicacion DESC
+    `;
+
+    //flags de los filtros
+    const searchArtists = !filter || filter === "all" || filter === "artistas";
+    const searchObras   = !filter || filter === "all" || filter === "obras";
+
+    const results = {
+        artists: [],
+        obras: []
+    };
+
+    //Promesas para las busquedas
+    const promises = [];
+
+    if (searchArtists) {
+      promises.push(new Promise((resolve) => {
+        db.query(sqlArtists, [likeParam, likeParam], (err, rows) => {
+          if (err) {
+            console.log("Error buscando artistas:", err);
+            return resolve();
+          }
+          results.artists = rows;
+          resolve();
+        });
+      }));
+    }
+
+    if (searchObras) {
+      promises.push(new Promise((resolve) => {
+        db.query(sqlObras, [likeParam], (err, rows) => {
+          if (err) {
+            console.log("Error buscando obras:", err);
+            return resolve();
+          }
+          results.obras = rows;
+          resolve();
+        });
+      }));
+    }
+
+    Promise.all(promises).then(() => {
+      resp.json(results);
+    });
+});
+
 

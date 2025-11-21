@@ -126,14 +126,20 @@ function Home() {
   useEffect(()=>{
     const getFeed = async ()=>{
       try {
-        const resp = await axios.get("http://localhost:3001/feed"); 
-        setPublicaciones(resp.data); 
+        const resp = await axios.get("http://localhost:3001/feed");
+
+        const miID = Number(userID); // ID del usuario loggeado
+        const publicacionesDeOtros = resp.data.filter(
+          (p) => p.idUsuario !== miID
+        );
+        setPublicaciones(publicacionesDeOtros); 
       } catch (error) {
         console.log("Error al cargar la feed:", error); 
       }
     }
-    getFeed(); 
-  }, [])
+
+    if(userID)getFeed(); 
+  }, [userID])
 
   return (
     <main className="main-home">

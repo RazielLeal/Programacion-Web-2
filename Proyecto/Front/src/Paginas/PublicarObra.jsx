@@ -44,6 +44,17 @@ export function PublicarObra() {
   const sendDataPublicacion = async (e)=>{
     e.preventDefault();
 
+    // === VALIDACIÓN FRONT ===
+    if (!titulo.trim()) {
+      alert("Tu obra debe tener un título.");
+      return;
+    }
+
+    if (!imagen) {
+      alert("Selecciona una imagen para tu obra.");
+      return;
+    }
+
     const formDataPublicacion = new FormData(); 
     formDataPublicacion.append("titlePost", titulo); 
     formDataPublicacion.append("imagePost", imagen); 
@@ -66,6 +77,10 @@ export function PublicarObra() {
         //Limpiamos los campos
         setTitulo(""); 
         setImagen(null); 
+        setPreview(null);
+
+        //redirigimos después de publicar
+        navigate("/Home");
       } else if (resp.data.msg === "ErrorDB"){
         alert("Error al registrar publicacion"); 
       }
@@ -115,7 +130,7 @@ export function PublicarObra() {
           <button className="btn-cancelar" onClick={Cancelar}>
             CANCELAR
           </button>
-          <button type = "submit" className="btn-publicar" onClick={Publicar}>PUBLICAR</button>
+          <button type = "submit" className="btn-publicar">PUBLICAR</button>
         </div>
     </form>
   );
