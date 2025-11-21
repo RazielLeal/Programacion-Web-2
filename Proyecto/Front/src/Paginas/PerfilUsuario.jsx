@@ -3,7 +3,8 @@ import "./CSS/Perfil.css";
 import { NavbarPerfil } from "./Componentes/NavbarPerfil";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react"; 
-import axios from "axios"; 
+import axios from "axios";
+import Swal from "sweetalert2";
 
 import Apl from "./CSS/Images/Perfil/Aplausos.png";
 import Seg from "./CSS/Images/Perfil/Seguidores.png";
@@ -119,15 +120,31 @@ export const PerfilUsuario = () => {
       try{
         const resp = await axios.get(`http://localhost:3001/user/${idUsuario}`);
           if(resp.data.msg === "Err BD"){
-            alert("Error con base de datos"); 
+            Swal.fire({
+              icon: "error",
+              title: "Error de base de datos",
+              text: "No fue posible cargar tu información.",
+              confirmButtonColor: "#a47d5e",
+            });
           } else if (resp.data.msg === "No result"){
             console.log("Error al obtener la info del usuario"); 
+            Swal.fire({
+              icon: "warning",
+              title: "Usuario no encontrado",
+              text: "No se encontró información del usuario.",
+              confirmButtonColor: "#a47d5e",
+            });
           } else {
             setUserInfo(resp.data); 
             // console.log(resp.data);  
           }
       } catch (error){
-        alert("Error al hacer la peticion"); 
+        Swal.fire({
+          icon: "error",
+          title: "Error de conexión",
+          text: "No se pudo realizar la petición al servidor.",
+          confirmButtonColor: "#a47d5e",
+        });
       }
   }
   useEffect(()=>{
@@ -169,18 +186,35 @@ export const PerfilUsuario = () => {
       );
 
       if(resp.data.msg === "Usuario modificado"){
-        alert("Usuario modificado con exito"); 
+        Swal.fire({
+          icon: "success",
+          title: "Cambios guardados 😃",
+          text: "Tu perfil fue actualizado correctamente.",
+          confirmButtonColor: "#a47d5e",
+          timer: 1500,
+          showConfirmButton: false,
+        });
         setNuevaImagen(null); 
         setContraActual("");
         setIsContraVerified(false);  
         getUser(); 
       } else if(resp.data.msg === "Err BD"){
-        alert("Error al modificar el usuario");
+        Swal.fire({
+          icon: "error",
+          title: "Error al modificar",
+          text: "Hubo un problema al actualizar tu usuario.",
+          confirmButtonColor: "#a47d5e",
+        });
       } 
       console.log(resp.data); 
     } catch (error) {
       console.log(error); 
-      alert("Error al hacer la peticion"); 
+      Swal.fire({
+        icon: "error",
+        title: "Error de conexión",
+        text: "No se pudo completar la petición.",
+        confirmButtonColor: "#a47d5e",
+      });
     }
   }
 
@@ -189,7 +223,12 @@ export const PerfilUsuario = () => {
       try{
         const resp = await axios.get(`http://localhost:3001/getImagenPublicaciones/${userID}`);
           if(resp.data.msg === "Err BD"){
-            alert("Error con base de datos"); 
+            Swal.fire({
+              icon: "error",
+              title: "Error de base de datos",
+              text: "No se pudieron cargar tus publicaciones.",
+              confirmButtonColor: "#a47d5e",
+            });
           } else if (resp.data.msg === "No result"){
             console.log("No hay publicaciones registradas"); 
           } else {
@@ -199,7 +238,12 @@ export const PerfilUsuario = () => {
             }
           }
       } catch (error){
-        alert("Error al hacer la peticion"); 
+        Swal.fire({
+          icon: "error",
+          title: "Error de conexión",
+          text: "No se pudo cargar tu galería.",
+          confirmButtonColor: "#a47d5e",
+        });
       }
   }
 

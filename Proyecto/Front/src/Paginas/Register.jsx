@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import "./CSS/Register.css"; // Usa el estilo que subiste
 import { Navbar } from "./Componentes/NavbarFotter";
+import Swal from "sweetalert2";
 
 
 export default function Register() {
@@ -18,14 +19,24 @@ export default function Register() {
     // VALIDACIONES
     //VALIDACION NOMBRE
     if (nombre.length > 150) {
-      alert("El nombre no puede tener más de 150 caracteres.");
-      return; // Detiene la ejecución si la validación falla
+      Swal.fire({
+        icon: "info",
+        title: "Nombre demasiado largo",
+        text: "El nombre no puede tener más de 150 caracteres.",
+        confirmButtonColor: "#a47d5e",
+      });
+      return;
     }
 
     //VALIDACION CORREO
     const emailRegex = /^[^\s@]+@(gmail\.com|outlook\.com|hotmail\.com)$/;
     if (!emailRegex.test(correo)) {
-      alert("Por favor, introduce un correo electrónico válido.");
+      Swal.fire({
+        icon: "warning",
+        title: "Correo no válido",
+        text: "Por favor, introduce un correo electrónico válido (gmail, outlook o hotmail).",
+        confirmButtonColor: "#a47d5e",
+      });
       return;
     }
     //VALIDACION CONTRASEÑA
@@ -33,38 +44,72 @@ export default function Register() {
     const passRegexNumero = /[0-9]/;
     const passRegexEspecial = /[.,;!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
 
-    if (contra.length < 8) { // Buena práctica: añadir una longitud mínima
-      alert("La contraseña debe tener al menos 8 caracteres.");
+    if (contra.length < 8) { 
+      Swal.fire({
+        icon: "info",
+        title: "Contraseña muy corta",
+        text: "La contraseña debe tener al menos 8 caracteres.",
+        confirmButtonColor: "#a47d5e",
+      });
       return;
     }
     if (!passRegexMayuscula.test(contra)) {
-      alert("La contraseña debe contener al menos una letra mayúscula.");
+      Swal.fire({
+        icon: "info",
+        title: "Falta una mayúscula",
+        text: "La contraseña debe contener al menos una letra mayúscula.",
+        confirmButtonColor: "#a47d5e",
+      });
       return;
     }
     if (!passRegexNumero.test(contra)) {
-      alert("La contraseña debe contener al menos un número.");
+      Swal.fire({
+        icon: "info",
+        title: "Falta un número",
+        text: "La contraseña debe contener al menos un número.",
+        confirmButtonColor: "#a47d5e",
+      });
       return;
     }
     if (!passRegexEspecial.test(contra)) {
-      alert("La contraseña debe contener al menos un caracter especial (ej. .,;!@#$).");
+       Swal.fire({
+        icon: "info",
+        title: "Falta un carácter especial",
+        text: "La contraseña debe contener al menos un carácter especial (ej. .,;!@#$).",
+        confirmButtonColor: "#a47d5e",
+      });
       return;
     }
 
     //VALIDACION IMAGEN
     if (archivo && !archivo.type.startsWith("image/")) {
-      alert("El archivo seleccionado no es una imagen. Por favor, elige un archivo de imagen.");
+      Swal.fire({
+        icon: "warning",
+        title: "Archivo no válido",
+        text: "El archivo seleccionado no es una imagen. Elige un archivo de imagen.",
+        confirmButtonColor: "#a47d5e",
+      });
       return;
     }
     if (!archivo) {
-      alert("Por favor, selecciona una imagen. Es obligatorio.");
+      Swal.fire({
+        icon: "info",
+        title: "Imagen requerida",
+        text: "Por favor, selecciona una imagen. Es obligatorio.",
+        confirmButtonColor: "#a47d5e",
+      });
       return;
     }
     const tamanoMaximo = 5 * 1024 * 1024; // 5 MB en bytes
     if (archivo.size > tamanoMaximo) {
-      alert("La imagen no puede pesar más de 5 MB.");
+      Swal.fire({
+        icon: "warning",
+        title: "Imagen demasiado pesada",
+        text: "La imagen no puede pesar más de 5 MB.",
+        confirmButtonColor: "#a47d5e",
+      });
       return;
     }
-    // --- FIN DE VALIDACIONES ---
 
     const frmData = new FormData();
     frmData.append("name", nombre);
@@ -81,7 +126,14 @@ export default function Register() {
       );
 
       if (respuesta.data.msg === "Registrado") {
-        alert("Usuario registrado");
+        Swal.fire({
+          icon: "success",
+          title: "Usuario registrado 🌟",
+          text: "Tu cuenta se ha creado correctamente.",
+          confirmButtonColor: "#a47d5e",
+          timer: 1800,
+          showConfirmButton: false,
+        });
         // Limpiar el formulario
         setNombre("");
         setCorreo("");
@@ -89,12 +141,22 @@ export default function Register() {
         setArchivo(null);
         setPreview("./Images/descarga (2).jpeg");
       } else if (respuesta.data.msg === "ErrorDB") {
-        alert("Error al registrar usuario");
+        Swal.fire({
+          icon: "error",
+          title: "Error en el registro",
+          text: "Ocurrió un error al registrar al usuario.",
+          confirmButtonColor: "#a47d5e",
+        });
       }
       console.log(respuesta.data);
     } catch (error) {
       console.log(error);
-      alert("Error en la petición");
+      Swal.fire({
+        icon: "error",
+        title: "Error de conexión",
+        text: "Hubo un problema al procesar la petición.",
+        confirmButtonColor: "#a47d5e",
+     });
     }
   };
 

@@ -6,7 +6,8 @@ import ArtworkModal from "./Componentes/ArtworkModal";
 import Apl from "./CSS/Images/Perfil/Aplausos.png";
 import Seg from "./CSS/Images/Perfil/Seguidores.png";
 import Correo from "./CSS/Images/Perfil/Correo.png";
-import axios from "axios"; 
+import axios from "axios";
+import Swal from "sweetalert2";
 
 import { useEffect } from "react"; 
 import { useState } from "react";
@@ -30,15 +31,31 @@ export const PerfilArtista = () => {
       try{
         const resp = await axios.get(`http://localhost:3001/user/${idUsuario}`);
           if(resp.data.msg === "Err BD"){
-            alert("Error con base de datos"); 
+            Swal.fire({
+              icon: "error",
+              title: "Error de base de datos",
+              text: "Ocurrió un problema al obtener la información del artista.",
+              confirmButtonColor: "#a47d5e",
+            }); 
           } else if (resp.data.msg === "No result"){
             console.log("Error al obtener la info del usuario"); 
+            Swal.fire({
+              icon: "warning",
+              title: "Artista no encontrado",
+              text: "No se encontró información para este usuario.",
+              confirmButtonColor: "#a47d5e",
+            });
           } else {
             setUserInfo(resp.data); 
             // console.log(resp.data);  
           }
       } catch (error){
-        alert("Error al hacer la peticion"); 
+        Swal.fire({
+          icon: "error",
+          title: "Error de conexión",
+          text: "No se pudo hacer la petición al servidor.",
+          confirmButtonColor: "#a47d5e",
+        });
       }
   }
   useEffect(()=>{
@@ -50,7 +67,12 @@ export const PerfilArtista = () => {
       try{
         const resp = await axios.get(`http://localhost:3001/getImagenPublicaciones/${idUsuario}`);
           if(resp.data.msg === "Err BD"){
-            alert("Error con base de datos"); 
+           Swal.fire({
+              icon: "error",
+              title: "Error de base de datos",
+              text: "No se pudieron cargar las publicaciones del artista.",
+              confirmButtonColor: "#a47d5e",
+            });
           } else if (resp.data.msg === "No result"){
             console.log("No hay publicaciones registradas"); 
           } else {
@@ -60,7 +82,12 @@ export const PerfilArtista = () => {
             }
           }
       } catch (error){
-        alert("Error al hacer la peticion"); 
+        Swal.fire({
+          icon: "error",
+          title: "Error de conexión",
+          text: "No se pudo cargar la galería del artista.",
+          confirmButtonColor: "#a47d5e",
+        });
       }
   }
 
@@ -91,8 +118,13 @@ export const PerfilArtista = () => {
 
   const handleAdmirarClick = async () => {
       if (!miID) {
-          alert("Debes iniciar sesión para admirar");
-          return;
+        Swal.fire({
+          icon: "info",
+          title: "Inicia sesión",
+          text: "Debes iniciar sesión para poder admirar a este artista.",
+          confirmButtonColor: "#a47d5e",
+        });
+        return;
       }
 
       // Optimistic UI: Cambiamos el color antes de que el servidor responda
@@ -109,10 +141,15 @@ export const PerfilArtista = () => {
           setIsAdmirer(resp.data.siguiendo);
           
       } catch (error) {
-          console.error("Error al admirar");
-          // Si falla, regresamos al estado anterior
-          setIsAdmirer(estadoAnterior); 
-          alert("Hubo un error al intentar admirar.");
+        console.error("Error al admirar");
+        // Si falla, regresamos al estado anterior
+        setIsAdmirer(estadoAnterior); 
+        Swal.fire({
+          icon: "error",
+          title: "No se pudo completar la acción",
+          text: "Hubo un error al intentar admirar.",
+          confirmButtonColor: "#a47d5e",
+        });
       }
   };
   return (
@@ -133,11 +170,8 @@ export const PerfilArtista = () => {
 
             <div className="perfilStats">
               <div className="perfilDato">
-                <img
-                  src ={Apl}
-                  alt="Aplausos"
-                />
-                <p>123.5 M</p>
+                <img src={Apl} alt="Aplausos" />
+                <p>{userInfo.totalLikes || 0}</p>
               </div>
               <div className="perfilDato">
                 <img
